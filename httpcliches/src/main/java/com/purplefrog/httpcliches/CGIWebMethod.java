@@ -109,6 +109,18 @@ public class CGIWebMethod
             String argl = arg_.toLowerCase();
             return "true".equals(argl) || "on".equals(argl) || "1".equals(argl);
 
+        } else if (parameterType.isAssignableFrom(long.class)) {
+            if (arg_==null)
+                throw new CGISOAPTransformException("missing parameter "+a.name()+" can't be omitted", a.name());
+
+            return Long.parseLong(arg_);
+
+        } else if (parameterType.isAssignableFrom(Long.class)) {
+            if (arg_==null)
+                return null;
+
+            return Long.parseLong(arg_);
+
         } else if (parameterType.isAssignableFrom(String.class)) {
             return arg_;
 

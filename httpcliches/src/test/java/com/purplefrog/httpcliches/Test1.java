@@ -142,9 +142,6 @@ public class Test1
     public void test6()
         throws NoSuchMethodException, CGIWebMethod.CGISOAPTransformException
     {
-
-        Map<String, List<String>> cgi = new TreeMap<String, List<String>>();
-
         Annotation[] a = Test1.class.getMethod("cgifake4", Integer.class).getParameterAnnotations()[0];
 
         assertNull(checkTransform(a, Integer.class, "i", ""));
@@ -152,6 +149,60 @@ public class Test1
         assertEquals(7, checkTransform(a, Integer.class, "i", "7"));
 
         assertEquals(-42, checkTransform(a, Integer.class, "i", "-42"));
+    }
+
+    //
+
+    public static void cgifake5(@WebParam(name = "l") long la1)
+    {
 
     }
+
+    public void test7()
+        throws NoSuchMethodException, CGIWebMethod.CGISOAPTransformException
+    {
+        Annotation[] a = Test1.class.getMethod("cgifake5", long.class).getParameterAnnotations()[0];
+
+        assertEquals(7L, checkTransform(a, long.class, "l", "7"));
+
+        assertEquals(42L, checkTransform(a, long.class, "l", "42"));
+
+        assertEquals(-99L, checkTransform(a, long.class, "l", "-99"));
+
+        assertEquals(9000000000L, checkTransform(a, long.class, "l", "9000000000"));
+
+
+        try {
+            checkTransform(a, long.class, "wrong", "9000000000");
+            fail();
+        } catch (CGIWebMethod.CGISOAPTransformException e) {
+            assertTrue("threw the right exception", true);
+        }
+    }
+
+    //
+
+    public static void cgifake8(@WebParam(name = "l") Long la1)
+    {
+
+    }
+
+    public void test8()
+        throws NoSuchMethodException, CGIWebMethod.CGISOAPTransformException
+    {
+        Annotation[] a = Test1.class.getMethod("cgifake8", Long.class).getParameterAnnotations()[0];
+
+        assertEquals(7L, checkTransform(a, Long.class, "l", "7"));
+
+        assertEquals(42L, checkTransform(a, Long.class, "l", "42"));
+
+        assertEquals(-99L, checkTransform(a, Long.class, "l", "-99"));
+
+        assertEquals(9000000000L, checkTransform(a, Long.class, "l", "9000000000"));
+
+        assertNull(checkTransform(a, Long.class, "wrong", ""));
+        assertNull(checkTransform(a, Long.class, "wrong", "9000000000"));
+
+    }
+
 }
