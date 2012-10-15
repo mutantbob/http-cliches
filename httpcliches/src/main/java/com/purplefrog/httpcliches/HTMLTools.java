@@ -200,7 +200,10 @@ public class HTMLTools
 
     public static String escapeFormValue(CharSequence text)
     {
-         StringBuilder rval = new StringBuilder();
+        if (text==null)
+            return null;
+
+        StringBuilder rval = new StringBuilder();
 
         for (int i=0; i<text.length(); i++) {
             char ch = text.charAt(i);
