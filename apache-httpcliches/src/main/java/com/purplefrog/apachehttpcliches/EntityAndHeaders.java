@@ -1,6 +1,7 @@
 package com.purplefrog.apachehttpcliches;
 
 import java.net.*;
+
 import org.apache.http.*;
 import org.apache.http.message.*;
 
@@ -43,8 +44,9 @@ public class EntityAndHeaders
 
     public static EntityAndHeaders plainPayload(int statusCode, String payload, String mimeType)
     {
-        return new EntityAndHeaders(statusCode, null, ApacheHTTPCliches.boringStringEntity(payload, mimeType));
+        return new EntityAndHeaders(statusCode, new Header[]{new BasicHeader("Content-Type", mimeType)}, ApacheHTTPCliches.boringStringEntity(payload));
     }
+
     public static EntityAndHeaders plainPayload(int statusCode, byte[] payload, String mimeType)
     {
         return new EntityAndHeaders(statusCode, null, ApacheHTTPCliches.boringByteEntity(payload, mimeType));
