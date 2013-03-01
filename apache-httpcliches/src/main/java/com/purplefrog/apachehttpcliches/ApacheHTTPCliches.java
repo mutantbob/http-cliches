@@ -149,4 +149,10 @@ public class ApacheHTTPCliches
     {
         return new URI(httpTargetHost(context).toURI());
     }
+
+    public static Long[] parseRangeHeader(HttpRequest request)
+    {
+        Header range_ = request.getFirstHeader("Range");
+        return Util2.parseRangeHeader(range_ == null ? null : range_.getValue());
+    }
 }

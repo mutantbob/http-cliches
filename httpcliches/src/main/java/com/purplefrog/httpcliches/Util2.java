@@ -4,6 +4,7 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.net.*;
 import java.util.*;
+import java.util.regex.*;
 
 import org.apache.log4j.*;
 
@@ -102,4 +103,71 @@ public class Util2
             return "application/binary";
         }
     }
+
+    /**
+     * RFC2616 section 14.35
+     *
+     * <p>
+     *     "100-200" becomes new Long[] { 100, 200 }
+     * <br>"0-500" becomes new Long[] { 0, 500 }
+     * <br>"-500" becomes new Long[] { -500, null }
+     *
+     * <p> Anything we can not understand causes us to return null, indicating we should ignore this malformed header.</p>
+     *
+     * @param rangeHdr
+     * @return
+     *
+     * @see #computeStartForRange(Long[], long)
+     */
+    public static Long[] parseRangeHeader(String rangeHdr)
+    {
+        if (null==rangeHdr)
+            return null;
+
+        Pattern p = Pattern.compile("bytes=([0-9]*)-([0-9]*)");
+        Matcher m = p.matcher(rangeHdr);
+        if (m.matches()) {
+            String start_ = m.group(1);
+            String end_ = m.group(2);
+
+            Long start, end;
+            if (start_.length() <1)
+                start = null;
+            else
+                start = Long.parseLong(start_);
+
+            if (end_.length()<1) {
+                end = null;
+            } else {
+                end = Long.parseLong(end_);
+                if (start==null) { // oddity in the parsing
+                    start = -end;
+                    end=null;
+                }
+            }
+
+            return new Long[]{start, end};
+        } else {
+            return null;
+        }
+    }
+
+
+    public static long computeStartForRange(Long[] range, long entityLength)
+    {
+        if (range[0]<0) {
+            return entityLength +range[0];
+        } else {
+            return range[0];
+        }
+    }
+
+    public static long computeEndForRange(Long[] range, long entityLength)
+    {
+        if (null==range[1])
+            return entityLength-1;
+        else
+            return Math.min(range[1], entityLength-1);
+    }
+
 }
