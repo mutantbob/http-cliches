@@ -38,7 +38,7 @@ public class DirectoryApacheHandler
 
         EntityAndHeaders rval;
         try {
-            URI uri = new URI(rl.getUri());
+            URI uri = new URI(null, null, rl.getUri(), null);
             if (uri.getPath().startsWith(prefix)) {
                 URI suffix = new URI(uri.getScheme(), uri.getAuthority(), uri.getPath().substring(prefix.length()), uri.getQuery(), uri.getFragment());
 
@@ -58,7 +58,7 @@ public class DirectoryApacheHandler
         rval.apply(response);
     }
 
-    private EntityAndHeaders handleGET(HttpContext context, URI suffix_)
+    public EntityAndHeaders handleGET(HttpContext context, URI suffix_)
     {
         String suffix = suffix_.getPath();
         if ("".equals(suffix)) {
@@ -76,7 +76,7 @@ public class DirectoryApacheHandler
         logger.debug("mapped to "+target);
 
         if (target.isDirectory()) {
-            String u = ApacheHTTPCliches.redirectPath(context, prefix+"/" +suffix+"/"
+            String u = ApacheHTTPCliches.redirectPath(context, (prefix+"/" +suffix+"/").replaceAll("/+","/")
                 + indexThingyFor(target));
             return new EntityAndHeaders.Redirect(u, "redirect to \n"+u);
         }
