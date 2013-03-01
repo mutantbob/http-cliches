@@ -1,2 +1,8 @@
 This is a set of utility classes that make it a little easier to write
 web servers that use the Apache or Sun HTTP frameworks.
+
+
+
+Authors:
+
+Robert Forsman <httpcliches@thoth.purplefrog.com>

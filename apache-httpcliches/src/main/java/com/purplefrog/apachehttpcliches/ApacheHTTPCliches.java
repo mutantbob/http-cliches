@@ -1,6 +1,7 @@
 package com.purplefrog.apachehttpcliches;
 
 import java.io.*;
+import java.lang.reflect.*;
 import java.net.*;
 import java.nio.charset.*;
 import java.util.regex.*;
@@ -33,6 +34,15 @@ public class ApacheHTTPCliches
     public static StringEntity boringStringEntity(String payload, String mimeType)
     {
         return new StringEntity(payload, ContentType.create(mimeType, "UTF-8"));
+    }
+
+    public static StringEntity boringStringEntity(String payload)
+    {
+        try {
+            return new StringEntity(payload, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new UndeclaredThrowableException(e, "Your JVM doesn't support UTF-8");
+        }
     }
 
     public static HttpEntity boringByteEntity(byte[] payload, String mimeType)
