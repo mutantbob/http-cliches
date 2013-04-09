@@ -21,7 +21,7 @@ public class CGIWebMethod
      * Then extract the relevant values from the cgiArgs and transform them into the correct type.
      * @return an array of Objects suitable for use as parameters for a call to {@link Method#invoke(Object, Object...)}.
      *
-     * @see #transform(Class, Annotation[], CGIEnvironment)
+     * @see #transform(Class, Annotation[], CGIEnvironment, String)
      */
     public static Object[] transformCGIArgumentsToJavaParams(Method m, CGIEnvironment cgiEnv)
         throws CGISOAPTransformException
@@ -31,7 +31,10 @@ public class CGIWebMethod
 
         Object[] params = new Object[pt.length];
         for (int i=0; i<pt.length; i++) {
-            params[i] = transform(pt[i], pa[i], cgiEnv);
+            String annotationDebugTag = m.getDeclaringClass().getName()
+                +"."+m.getName()
+                + "(param[" + i + "] a " + pt[i].getSimpleName() + ")";
+            params[i] = transform(pt[i], pa[i], cgiEnv, annotationDebugTag);
         }
         return params;
     }
@@ -48,7 +51,7 @@ public class CGIWebMethod
      * @return an object of class parameterType extracted from cgiArgs according to the WebParam in annotations
      * @throws CGISOAPTransformException
      */
-    public static Object transform(Class<?> parameterType, Annotation[] annotations, CGIEnvironment cgiEnv)
+    public static Object transform(Class<?> parameterType, Annotation[] annotations, CGIEnvironment cgiEnv, String annotationDebugTag)
         throws CGISOAPTransformException
     {
         Map<String, List<String>> cgiArgs = cgiEnv.args;
@@ -65,7 +68,8 @@ public class CGIWebMethod
         }
 
         if (a.name()==null || a.name().length()<1)
-            throw new CGISOAPTransformException("WebParam annotation has blank name", a.name());
+            throw new CGISOAPTransformException("WebParam annotation for " +annotationDebugTag+
+                " has blank name", a.name());
 
         List<String> arg = cgiArgs.get(a.name());
 
