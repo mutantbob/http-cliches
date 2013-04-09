@@ -43,7 +43,7 @@ public class Test1
 
         Annotation[] a = Test1.class.getMethod("cgifake1", Map.class).getParameterAnnotations()[0];
 
-        Object x = CGIWebMethod.transform(Map.class, a, new CGIEnvironment(cgi));
+        Object x = CGIWebMethod.transform(Map.class, a, new CGIEnvironment(cgi), "placeholder");
         assertEquals(cgi, x);
     }
 
@@ -104,7 +104,7 @@ public class Test1
         Map<String, List<String>> cgi = new TreeMap<String, List<String>>();
 
         cgi.put(parameterName, Arrays.asList(values));
-        return CGIWebMethod.transform(parameterType, a, new CGIEnvironment(cgi));
+        return CGIWebMethod.transform(parameterType, a, new CGIEnvironment(cgi), "placeholder");
     }
 
     //
@@ -122,7 +122,7 @@ public class Test1
 
         Annotation[] a = Test1.class.getMethod("cgifake3", String[].class).getParameterAnnotations()[0];
 
-        Object o = CGIWebMethod.transform(String[].class, a, new CGIEnvironment(cgi));
+        Object o = CGIWebMethod.transform(String[].class, a, new CGIEnvironment(cgi), "placeholder");
 
         if (o instanceof String[]) {
             String[] sa = (String[]) o;
