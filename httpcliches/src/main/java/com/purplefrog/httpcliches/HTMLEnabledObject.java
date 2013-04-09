@@ -30,9 +30,9 @@ public class HTMLEnabledObject
      * returns an STGroup with a {@link MagicAdaptor} pre-loaded with the HTML magic.
      * If crazyGeneral is true, then this model is registered for all classes (Object and its derivatives).
      * If crazyGeneral is false then this model is only registered for objects derived from {@link HTMLEnabledObject}.
-     * @param crazyGeneral
-     * @param delimiterStartChar
-     * @param delimiterStopChar
+     * @param crazyGeneral should we enable ".html" suffixes for all objects?  If false, only enable for objects derived from HTMLEnabledObject.
+     * @param delimiterStartChar popular choices are '<' and '$'
+     * @param delimiterStopChar popular choices are '>' and '$'
      * @return
      */
     public static STGroup makeSTGroup(boolean crazyGeneral, char delimiterStartChar, char delimiterStopChar)
