@@ -26,6 +26,13 @@ public class EntityAndHeaders
         this.en = en;
     }
 
+    public EntityAndHeaders(int statusCode, HttpEntity en, Header... extraHeaders)
+    {
+        this.statusCode = statusCode;
+        this.extraHeaders = extraHeaders;
+        this.en = en;
+    }
+
     public void apply(HttpResponse resp)
     {
         resp.setStatusCode(statusCode);
