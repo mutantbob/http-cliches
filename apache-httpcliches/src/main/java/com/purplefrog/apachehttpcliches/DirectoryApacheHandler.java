@@ -2,9 +2,11 @@ package com.purplefrog.apachehttpcliches;
 
 import java.io.*;
 import java.net.*;
+
 import com.purplefrog.httpcliches.*;
 import org.apache.http.*;
 import org.apache.http.entity.*;
+import org.apache.http.message.*;
 import org.apache.http.protocol.*;
 import org.apache.log4j.*;
 
@@ -17,6 +19,8 @@ public class DirectoryApacheHandler
     implements HttpRequestHandler
 {
     private static final Logger logger = Logger.getLogger(DirectoryApacheHandler.class);
+
+    public final static BasicHeader ACCEPT_RANGES_BYTES = new BasicHeader("Accept-Ranges", "bytes");
 
 
     public final String prefix;
@@ -43,7 +47,7 @@ public class DirectoryApacheHandler
                 URI suffix = new URI(uri.getScheme(), uri.getAuthority(), uri.getPath().substring(prefix.length()), uri.getQuery(), uri.getFragment());
 
                 if ("GET".equals(method)) {
-                    rval = handleGET(context, suffix);
+                    rval = handleGET(context, suffix, ApacheHTTPCliches.getRangeHeader(request));
                 } else {
                     rval = EntityAndHeaders.plainTextPayload(501, "501 Not Implemented");
                 }
@@ -58,7 +62,7 @@ public class DirectoryApacheHandler
         rval.apply(response);
     }
 
-    private EntityAndHeaders handleGET(HttpContext context, URI suffix_)
+    private EntityAndHeaders handleGET(HttpContext context, URI suffix_, String range)
     {
         String suffix = suffix_.getPath();
         if ("".equals(suffix)) {
@@ -82,11 +86,32 @@ public class DirectoryApacheHandler
         }
 
         if (target.exists()) {
-            return new EntityAndHeaders(200, null, new FileEntity(target, ApacheHTTPCliches.mimeTypeFor(target)));
+
+            ContentType mime = ApacheHTTPCliches.mimeTypeFor(target);
+            if (range==null) {
+                return new EntityAndHeaders(200, new FileEntity(target, mime), ACCEPT_RANGES_BYTES);
+            }
+            else
+                return handleSubset(target, mime, range);
+
 
         } else {
             return EntityAndHeaders.plainTextPayload(404, "Not Found");
         }
+    }
+
+    public static EntityAndHeaders handleSubset(File f, ContentType mime, String rangeHeader)
+    {
+        long totalFileLength = f.length();
+
+        ByteRangeSpec brs = ByteRangeSpec.parseRange(rangeHeader, totalFileLength);
+
+        if (brs.end == null)
+            brs.end = totalFileLength-1;
+
+        PartialFileEntity en = new PartialFileEntity(f, brs, mime);
+        BasicHeader contentRange = new BasicHeader("Content-Range", "bytes " + brs.start + "-" + brs.end + "/" + totalFileLength);
+        return new EntityAndHeaders(206, en, contentRange, ACCEPT_RANGES_BYTES);
     }
 
     public String indexThingyFor(File target)
