@@ -34,6 +34,12 @@ public class HTTPWorkerThread
             }
         } catch (ConnectionClosedException ex) {
             logger.debug("Client closed connection", ex);
+        } catch (SocketException ex) {
+            if (ex.getMessage().contains("Connection reset"))
+                logger.debug("Client closed connection", ex);
+            else {
+                logger.warn("", ex);
+            }
         } catch (SocketTimeoutException ex) {
             logger.debug("got bored of waiting for client", ex);
         } catch (IOException ex) {
