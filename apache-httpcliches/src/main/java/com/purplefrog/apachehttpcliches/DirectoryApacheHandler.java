@@ -92,7 +92,7 @@ public class DirectoryApacheHandler
                 return new EntityAndHeaders(200, new FileEntity(target, mime), ACCEPT_RANGES_BYTES);
             }
             else
-                return handleSubset(target, mime, range);
+                return handleSubset2(target, mime, range);
 
 
         } else {
@@ -100,7 +100,7 @@ public class DirectoryApacheHandler
         }
     }
 
-    public static EntityAndHeaders handleSubset(File f, ContentType mime, String rangeHeader)
+    public static EntityAndHeaders handleSubset2(File f, ContentType mime, String rangeHeader)
     {
         long totalFileLength = f.length();
 
@@ -110,6 +110,20 @@ public class DirectoryApacheHandler
             brs.end = totalFileLength-1;
 
         PartialFileEntity en = new PartialFileEntity(f, brs, mime);
+        BasicHeader contentRange = new BasicHeader("Content-Range", "bytes " + brs.start + "-" + brs.end + "/" + totalFileLength);
+        return new EntityAndHeaders(206, en, contentRange, ACCEPT_RANGES_BYTES);
+    }
+
+    public static EntityAndHeaders handleSubset(File f, String contentType, String rangeHeader)
+    {
+        long totalFileLength = f.length();
+
+        ByteRangeSpec brs = ByteRangeSpec.parseRange(rangeHeader, totalFileLength);
+
+        if (brs.end == null)
+            brs.end = totalFileLength-1;
+
+        PartialFileEntity en = new PartialFileEntity(f, brs, contentType);
         BasicHeader contentRange = new BasicHeader("Content-Range", "bytes " + brs.start + "-" + brs.end + "/" + totalFileLength);
         return new EntityAndHeaders(206, en, contentRange, ACCEPT_RANGES_BYTES);
     }
