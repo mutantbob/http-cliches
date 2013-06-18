@@ -1,9 +1,7 @@
 package com.purplefrog.apachehttpcliches;
 
 import com.purplefrog.httpcliches.*;
-import org.apache.http.*;
 import org.apache.http.entity.*;
-import org.apache.http.message.*;
 import org.apache.log4j.*;
 
 import java.io.*;
@@ -23,18 +21,28 @@ public class PartialFileEntity
 
     private final File f;
     private final ByteRangeSpec brs;
+    private TransferCallback callback;
 
     public PartialFileEntity(File f, ByteRangeSpec brs, ContentType contentType)
     {
-        this.f = f;
-        this.brs = brs;
-        setContentType(contentType.toString());
+        this(f, brs, contentType, null);
+    }
+
+    public PartialFileEntity(File f, ByteRangeSpec brs, ContentType contentType, TransferCallback callback)
+    {
+        this(f, brs, contentType.toString(), callback);
     }
 
     public PartialFileEntity(File f, ByteRangeSpec brs, String contentType)
     {
+        this(f, brs, contentType, null);
+    }
+
+    public PartialFileEntity(File f, ByteRangeSpec brs, String contentType, TransferCallback callback)
+    {
         this.f = f;
         this.brs = brs;
+        this.callback = callback;
         setContentType(contentType);
     }
 
@@ -43,6 +51,15 @@ public class PartialFileEntity
      * @return
      */
     public static PartialFileEntity forAndroid(File f, ByteRangeSpec brs, String contentType)
+    {
+        return new PartialFileEntity(f, brs, contentType, null);
+    }
+
+    /**
+     * android lacks the ContentType class, and its compilers just can't handle linking against libraries where they're forced to think about it.
+     * @return
+     */
+    public static PartialFileEntity forAndroid(File f, ByteRangeSpec brs, String contentType, TransferCallback callback)
     {
         return new PartialFileEntity(f, brs, contentType);
     }
@@ -81,6 +98,10 @@ public class PartialFileEntity
         try {
 
             long remaining = brs.length();
+
+            if (null != callback)
+                callback.logContentLength(remaining);
+
             byte[] buffer = new byte[64<<10];
             long now = System.currentTimeMillis();
             while (remaining >0) {
@@ -91,18 +112,27 @@ public class PartialFileEntity
                     throw new EOFException("unexpected EOF on file");
                 }
                 outputStream.write(buffer, 0, n);
+
+                if (null !=callback)
+                    callback.logBytesWritten(n);
+
                 n1 = System.currentTimeMillis();
                 writeMillisAccum += n1-now; now = n1;
 
                 remaining -= n;
                 logRemaining(remaining);
 
-                now = System.currentTimeMillis();
             }
 
             outputStream.flush();
 
+            if (null != callback)
+                callback.logCompleted();
+
         } finally {
+            if (null != callback)
+                callback.logEnd();
+
             istr.close();
         }
     }
@@ -133,5 +163,6 @@ public class PartialFileEntity
     {
         return false;
     }
+
 
 }

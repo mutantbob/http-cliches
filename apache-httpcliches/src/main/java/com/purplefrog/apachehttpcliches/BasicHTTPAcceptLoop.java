@@ -36,6 +36,7 @@ public class BasicHTTPAcceptLoop
     public final ServerSocket serversocket;
     public final HttpParams params;
     public final HttpService httpService;
+    public final HttpRequestHandlerResolver registry;
 
     protected Executor executor;
     private boolean pleaseStop = false;
@@ -47,6 +48,8 @@ public class BasicHTTPAcceptLoop
 
         params = clicheParams();
         HttpProcessor httpproc = clicheProcessor();
+
+        this.registry = registry;
 
         // Set up the HTTP service
         httpService = new HttpService(
