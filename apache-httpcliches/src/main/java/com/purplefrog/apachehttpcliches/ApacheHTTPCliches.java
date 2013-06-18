@@ -148,6 +148,20 @@ public class ApacheHTTPCliches
         return Util2.slurp(r);
     }
 
+    public static InputStream requestBodyAsInputStream(HttpRequest request_)
+        throws IOException
+    {
+        if (!(request_ instanceof HttpEntityEnclosingRequest)) {
+            return null;
+        }
+
+        final HttpEntityEnclosingRequest request = (HttpEntityEnclosingRequest) request_;
+
+        HttpEntity en = request.getEntity();
+        final InputStream istr = en.getContent();
+        return istr;
+    }
+
     public static URI uriFor(HttpContext context, String relative)
         throws URISyntaxException
     {
