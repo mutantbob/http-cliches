@@ -35,6 +35,12 @@ public class DirectoryApacheHandler
     public void handle(HttpRequest request, HttpResponse response, HttpContext context)
         throws HttpException, IOException
     {
+        handle(request, response, context, null);
+    }
+
+    public void handle(HttpRequest request, HttpResponse response, HttpContext context, TransferCallback callback)
+        throws HttpException, IOException
+    {
         final RequestLine rl = request.getRequestLine();
         final String method = rl.getMethod();
 
@@ -47,7 +53,7 @@ public class DirectoryApacheHandler
                 URI suffix = new URI(uri.getScheme(), uri.getAuthority(), uri.getPath().substring(prefix.length()), uri.getQuery(), uri.getFragment());
 
                 if ("GET".equals(method)) {
-                    rval = handleGET(context, suffix, ApacheHTTPCliches.getRangeHeader(request));
+                    rval = handleGET(context, suffix, ApacheHTTPCliches.getRangeHeader(request), callback);
                 } else {
                     rval = EntityAndHeaders.plainTextPayload(501, "501 Not Implemented");
                 }
@@ -62,7 +68,7 @@ public class DirectoryApacheHandler
         rval.apply(response);
     }
 
-    private EntityAndHeaders handleGET(HttpContext context, URI suffix_, String range)
+    private EntityAndHeaders handleGET(HttpContext context, URI suffix_, String range, TransferCallback callback)
     {
         String suffix = suffix_.getPath();
         if ("".equals(suffix)) {
@@ -89,10 +95,10 @@ public class DirectoryApacheHandler
 
             ContentType mime = ApacheHTTPCliches.mimeTypeFor(target);
             if (range==null) {
-                return new EntityAndHeaders(200, new FileEntity(target, mime), ACCEPT_RANGES_BYTES);
-            }
-            else
-                return handleSubset2(target, mime, range);
+                PartialFileEntity entity = new PartialFileEntity(target, new ByteRangeSpec(0, target.length()), mime, callback);
+                return new EntityAndHeaders(200, entity, ACCEPT_RANGES_BYTES);
+            } else
+                return handleSubset2(target, mime, range, callback);
 
 
         } else {
@@ -100,7 +106,7 @@ public class DirectoryApacheHandler
         }
     }
 
-    public static EntityAndHeaders handleSubset2(File f, ContentType mime, String rangeHeader)
+    public static EntityAndHeaders handleSubset2(File f, ContentType mime, String rangeHeader, TransferCallback callback)
     {
         long totalFileLength = f.length();
 
@@ -109,12 +115,12 @@ public class DirectoryApacheHandler
         if (brs.end == null)
             brs.end = totalFileLength-1;
 
-        PartialFileEntity en = new PartialFileEntity(f, brs, mime);
+        PartialFileEntity en = new PartialFileEntity(f, brs, mime, callback);
         BasicHeader contentRange = new BasicHeader("Content-Range", "bytes " + brs.start + "-" + brs.end + "/" + totalFileLength);
         return new EntityAndHeaders(206, en, contentRange, ACCEPT_RANGES_BYTES);
     }
 
-    public static EntityAndHeaders handleSubset(File f, String contentType, String rangeHeader)
+    public static EntityAndHeaders handleSubset(File f, String contentType, String rangeHeader, TransferCallback callback)
     {
         long totalFileLength = f.length();
 
@@ -123,7 +129,7 @@ public class DirectoryApacheHandler
         if (brs.end == null)
             brs.end = totalFileLength-1;
 
-        PartialFileEntity en = new PartialFileEntity(f, brs, contentType);
+        PartialFileEntity en = new PartialFileEntity(f, brs, contentType, callback);
         BasicHeader contentRange = new BasicHeader("Content-Range", "bytes " + brs.start + "-" + brs.end + "/" + totalFileLength);
         return new EntityAndHeaders(206, en, contentRange, ACCEPT_RANGES_BYTES);
     }
