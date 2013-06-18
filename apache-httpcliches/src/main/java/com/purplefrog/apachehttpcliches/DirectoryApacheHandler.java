@@ -62,7 +62,7 @@ public class DirectoryApacheHandler
         rval.apply(response);
     }
 
-    private EntityAndHeaders handleGET(HttpContext context, URI suffix_, String range)
+    public EntityAndHeaders handleGET(HttpContext context, URI suffix_, String range)
     {
         String suffix = suffix_.getPath();
         if ("".equals(suffix)) {
