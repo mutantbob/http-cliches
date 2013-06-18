@@ -48,7 +48,7 @@ public class DirectoryApacheHandler
 
         EntityAndHeaders rval;
         try {
-            URI uri = new URI(null, null, rl.getUri(), null);
+            URI uri = URI.create(rl.getUri());
             if (uri.getPath().startsWith(prefix)) {
                 URI suffix = new URI(uri.getScheme(), uri.getAuthority(), uri.getPath().substring(prefix.length()), uri.getQuery(), uri.getFragment());
 
