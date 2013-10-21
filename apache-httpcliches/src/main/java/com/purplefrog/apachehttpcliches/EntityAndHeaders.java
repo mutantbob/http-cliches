@@ -44,6 +44,24 @@ public class EntityAndHeaders
         resp.setEntity(en);
     }
 
+    public void addHeader(String key, String value)
+    {
+        addHeader(new BasicHeader(key, value));
+    }
+
+    public synchronized void addHeader(Header hdr)
+    {
+        Header[] newVal;
+        if (extraHeaders == null ) {
+            newVal = new Header[] { hdr};
+        } else {
+            newVal = new Header[extraHeaders.length + 1];
+            System.arraycopy(extraHeaders, 0, newVal, 1, extraHeaders.length);
+            newVal[0] = hdr;
+        }
+        extraHeaders = newVal;
+    }
+
     public static EntityAndHeaders plainTextPayload(int statusCode, String payload)
     {
         return plainPayload(statusCode, payload, "text/plain");
