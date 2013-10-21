@@ -61,7 +61,7 @@ public class PartialFileEntity
      */
     public static PartialFileEntity forAndroid(File f, ByteRangeSpec brs, String contentType, TransferCallback callback)
     {
-        return new PartialFileEntity(f, brs, contentType);
+        return new PartialFileEntity(f, brs, contentType, callback);
     }
 
     @Override
@@ -80,6 +80,7 @@ public class PartialFileEntity
     public InputStream getContent()
         throws IOException, IllegalStateException
     {
+        logger.debug("getContent()");
         InputStream rval =new FileInputStream(f);
         long remaining = brs.start;
         while (remaining >0) {
@@ -93,6 +94,7 @@ public class PartialFileEntity
     public void writeTo(OutputStream outputStream)
         throws IOException
     {
+        logger.debug("writeTo()");
         InputStream istr = getContent();
 
         try {
@@ -100,7 +102,11 @@ public class PartialFileEntity
             long remaining = brs.length();
 
             if (null != callback)
-                callback.logContentLength(remaining);
+                try {
+                    callback.logContentLength(remaining);
+                } catch (Exception e) {
+                    logger.warn("transfer callback malfunctioned", e);
+                }
 
             byte[] buffer = new byte[64<<10];
             long now = System.currentTimeMillis();
@@ -114,7 +120,11 @@ public class PartialFileEntity
                 outputStream.write(buffer, 0, n);
 
                 if (null !=callback)
-                    callback.logBytesWritten(n);
+                    try {
+                        callback.logBytesWritten(n);
+                    } catch (Exception e) {
+                        logger.warn("transfer callback malfunctioned", e);
+                    }
 
                 n1 = System.currentTimeMillis();
                 writeMillisAccum += n1-now; now = n1;
@@ -127,11 +137,19 @@ public class PartialFileEntity
             outputStream.flush();
 
             if (null != callback)
-                callback.logCompleted();
+                try {
+                    callback.logCompleted();
+                } catch (Exception e) {
+                    logger.warn("transfer callback malfunctioned", e);
+                }
 
         } finally {
             if (null != callback)
-                callback.logEnd();
+                try {
+                    callback.logEnd();
+                } catch (Exception e) {
+                    logger.warn("transfer callback malfunctioned", e);
+                }
 
             istr.close();
         }
