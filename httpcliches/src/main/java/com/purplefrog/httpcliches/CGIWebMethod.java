@@ -99,6 +99,12 @@ public class CGIWebMethod
                 throw new CGISOAPTransformException("missing parameter "+a.name()+" can't be omitted", a.name());
             return Double.parseDouble(arg_);
 
+        } else if (parameterType.isAssignableFrom(Double.class)) {
+            if (arg_==null)
+                return null;
+
+            return Double.parseDouble(arg_);
+
         } else if (parameterType.isAssignableFrom(boolean.class)) {
             if (arg_==null)
                 throw new CGISOAPTransformException("missing parameter "+a.name()+" can't be omitted", a.name());

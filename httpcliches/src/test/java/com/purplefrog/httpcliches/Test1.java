@@ -205,4 +205,29 @@ public class Test1
 
     }
 
+    //
+
+    public static void cgifake9(@WebParam(name = "l") Double da1)
+    {
+
+    }
+
+    public void test9()
+        throws NoSuchMethodException, CGIWebMethod.CGISOAPTransformException
+    {
+        Annotation[] a = Test1.class.getMethod("cgifake9", Double.class).getParameterAnnotations()[0];
+
+        assertEquals(7.0, checkTransform(a, Double.class, "l", "7"));
+
+        assertEquals(42.0, checkTransform(a, Double.class, "l", "42"));
+
+        assertEquals(-99.3, checkTransform(a, Double.class, "l", "-99.3"));
+
+        assertEquals(9000000000.0, checkTransform(a, Double.class, "l", "9000000000"));
+
+        assertNull(checkTransform(a, Long.class, "wrong", ""));
+        assertNull(checkTransform(a, Long.class, "wrong", "9000000000"));
+
+    }
+
 }
