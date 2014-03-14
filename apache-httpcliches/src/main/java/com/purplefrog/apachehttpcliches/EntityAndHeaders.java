@@ -4,6 +4,7 @@ import java.net.*;
 
 import org.apache.http.*;
 import org.apache.http.message.*;
+import org.apache.http.protocol.*;
 
 /**
  * This is a self-contained response object for the Apache HTTP core
@@ -77,14 +78,23 @@ public class EntityAndHeaders
         return new EntityAndHeaders(statusCode, null, ApacheHTTPCliches.boringByteEntity(payload, mimeType));
     }
 
+    /**
+     * @see ApacheHTTPCliches#redirectPath(HttpContext, String)
+     */
     public static class Redirect
         extends EntityAndHeaders
     {
+        /**
+         * @see ApacheHTTPCliches#redirectPath(HttpContext, String)
+         */
         public Redirect(String newAbsoluteURL, String payload)
         {
             this(newAbsoluteURL, payload, "text/plain");
         }
 
+        /**
+         * @see ApacheHTTPCliches#redirectPath(HttpContext, String)
+         */
         public Redirect(String newAbsoluteURL, String payload, String contentType)
         {
             super(302, new Header[] {
@@ -92,11 +102,17 @@ public class EntityAndHeaders
             }, ApacheHTTPCliches.boringStringEntity(payload, contentType));
         }
 
+        /**
+         * @see ApacheHTTPCliches#redirectPath(HttpContext, String)
+         */
         public Redirect(URL newAbsoluteURL)
         {
             this(newAbsoluteURL.toString());
         }
 
+        /**
+         * @see ApacheHTTPCliches#redirectPath(HttpContext, String)
+         */
         public Redirect(String newAbsoluteURL)
         {
             super(302, new Header[] {
