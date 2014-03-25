@@ -74,7 +74,7 @@ public class HTMLTools
 
     public static String firstOrNull(List<String> list)
     {
-        if (list ==null)
+        if (list ==null || list.isEmpty())
             return null;
         else
             return list.get(0);

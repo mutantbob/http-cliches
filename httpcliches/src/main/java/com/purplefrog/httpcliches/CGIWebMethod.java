@@ -107,7 +107,7 @@ public class CGIWebMethod
 
         } else if (parameterType.isAssignableFrom(boolean.class)) {
             if (arg_==null)
-                throw new CGISOAPTransformException("missing parameter "+a.name()+" can't be omitted", a.name());
+                return Boolean.valueOf("");
 
             String argl = arg_.toLowerCase();
             return "true".equals(argl) || "on".equals(argl) || "1".equals(argl);

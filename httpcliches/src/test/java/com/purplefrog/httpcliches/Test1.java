@@ -86,16 +86,9 @@ public class Test1
         assertEquals(Boolean.FALSE, checkTransform(a, boolean.class, "b", "false"));
         assertEquals(Boolean.FALSE, checkTransform(a, boolean.class, "b", "0"));
 
-        try {
-
-            checkTransform(a, boolean.class, "blargh", "0");
-            fail("did not throw the exception I need");
-
-        } catch (CGIWebMethod.CGISOAPTransformException e) {
-            assertTrue("threw properly", true);
-
-        }
-
+        // booleans are a special case.  The checkboxes in HTML, if unchecked, just don't appear in the parameter list
+        // So if we provide no arguments, I still expect a False.
+        assertEquals(Boolean.FALSE, checkTransform(a, boolean.class, "b"));
     }
 
     public static Object checkTransform(Annotation[] a, Class<?> parameterType, String parameterName, String... values)
@@ -103,7 +96,9 @@ public class Test1
     {
         Map<String, List<String>> cgi = new TreeMap<String, List<String>>();
 
-        cgi.put(parameterName, Arrays.asList(values));
+        if (0<values.length)
+            cgi.put(parameterName, Arrays.asList(values));
+
         return CGIWebMethod.transform(parameterType, a, new CGIEnvironment(cgi), "placeholder");
     }
 
