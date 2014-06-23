@@ -131,6 +131,18 @@ public class CGIWebMethod
 
             return Long.parseLong(arg_);
 
+        } else if (parameterType.isAssignableFrom(float.class)) {
+            if (arg_==null)
+                return null;
+
+            return Float.parseFloat(arg_);
+
+        } else if (parameterType.isAssignableFrom(Float.class)) {
+            if (arg_==null)
+                return null;
+
+            return Float.parseFloat(arg_);
+
         } else if (parameterType.isAssignableFrom(String.class)) {
             return arg_;
 
