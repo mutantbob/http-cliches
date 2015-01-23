@@ -95,6 +95,8 @@ public class Util2
             return "image/png";
         } else if (pathLower.endsWith(".mp4")) {
             return "video/mp4";
+        } else if (pathLower.endsWith(".mkv")) {
+            return "video/x-matroska";
         } else if (pathLower.endsWith(".txt")) {
             return "text/plain";
         } else {
