@@ -97,6 +97,14 @@ public class Util2
             return "video/mp4";
         } else if (pathLower.endsWith(".txt")) {
             return "text/plain";
+        } else if (pathLower.endsWith(".m3u")) {
+            return "audio/x-mpegurl";
+        } else if (pathLower.endsWith(".m3u8")) {
+            return "application/vnd.apple.mpegurl";
+        } else if (pathLower.endsWith(".ts")) {
+            return "video/MP2T";
+        } else if (pathLower.endsWith(".mpeg")) {
+            return "video/mpeg";
         } else {
             if (true)
                 return URLConnection.guessContentTypeFromName(target.getName());
