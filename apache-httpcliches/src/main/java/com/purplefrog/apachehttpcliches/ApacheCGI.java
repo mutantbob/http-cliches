@@ -5,6 +5,7 @@ import java.net.*;
 import java.util.*;
 import com.purplefrog.httpcliches.*;
 import org.apache.http.*;
+import org.apache.http.impl.*;
 import org.apache.http.protocol.*;
 import org.apache.log4j.*;
 
@@ -42,6 +43,15 @@ public class ApacheCGI
         rval.serverName = targetHost.getHostName();
         rval.serverPort = targetHost.getPort();
         rval.pathInfo = req.getRequestLine().getUri();
+
+        SocketHttpServerConnection conn=ApacheHTTPCliches.remoteAddress(context);
+        if (null != conn) {
+            rval.remoteAddress=conn.getRemoteAddress();
+            rval.remotePort = conn.getRemotePort();
+            logger.info("remote address "+rval.remoteAddress.getHostAddress()+":"+rval.remotePort);
+        } else {
+            logger.info("remote address info null");
+        }
         return rval;
     }
 }

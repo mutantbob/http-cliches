@@ -14,6 +14,8 @@ public class CGIEnvironment
     public int serverPort;
     public String pathInfo;
     public Map<String, List<String>> args;
+    public InetAddress remoteAddress=null;
+    public int remotePort=0;
 
     public CGIEnvironment(Map<String, List<String>> args)
     {
@@ -26,4 +28,11 @@ public class CGIEnvironment
         return new URL("http", serverName, serverPort, pathInfo);
     }
 
+    public String remoteAddressString()
+    {
+        if (remoteAddress!=null)
+            return remoteAddress.getHostAddress();
+        else
+            return null;
+    }
 }
