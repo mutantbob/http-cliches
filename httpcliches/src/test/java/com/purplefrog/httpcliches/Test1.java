@@ -225,4 +225,20 @@ public class Test1
 
     }
 
+    //
+
+    public static void cgifake10(@WebParam(name="windows")int[] windows)
+    {
+
+    }
+
+    public void test10()
+        throws NoSuchMethodException, CGIWebMethod.CGISOAPTransformException
+    {
+        Annotation[] a = Test1.class.getMethod("cgifake10", int[].class).getParameterAnnotations()[0];
+
+        org.junit.Assert.assertArrayEquals(new int[]{1,10,60}, (int[])checkTransform(a, int[].class, "windows", "1", "10", "60"));
+
+        org.junit.Assert.assertArrayEquals(new int[0], (int[]) checkTransform(a, int[].class, "windows"));
+    }
 }

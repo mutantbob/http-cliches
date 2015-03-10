@@ -154,6 +154,8 @@ public class CGIWebMethod
     public static Object transformArray(List<String> args, Class<?> parameterType, Annotation[] annotations)
         throws CGISOAPTransformException
     {
+        if (args==null)
+            return Array.newInstance(parameterType, 0);
 
         if (parameterType.isAssignableFrom(int.class)) {
 
