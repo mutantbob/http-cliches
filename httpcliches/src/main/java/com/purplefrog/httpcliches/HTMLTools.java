@@ -160,7 +160,10 @@ public class HTMLTools
                 } else if ('-' == ch
                            || '_' == ch
                            || '.' == ch
-                           || '~' == ch) {
+                           || '~' == ch
+                           || ':' == ch
+                           || '/' == ch
+                           || '?' == ch) {
                     rval.append(ch);
                 } else {
                     rval.append("%" + Character.forDigit(0xf & (ch >> 4), 16) +
