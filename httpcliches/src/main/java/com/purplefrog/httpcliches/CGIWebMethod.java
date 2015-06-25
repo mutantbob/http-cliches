@@ -201,6 +201,12 @@ public class CGIWebMethod
         return null;
     }
 
+    /**
+     *
+     * @param cls the class whose methods we should search for a matching {@link WebMethod} annotation
+     * @param name This is probably new URI(request.getRequestLine().getUri()).getPath().substring(idx)
+     * @return
+     */
     public static Method matchName(Class cls, String name)
     {
         Method[] ms = cls.getMethods();
