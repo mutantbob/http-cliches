@@ -188,7 +188,7 @@ public class CGIWebMethod
 
             return args.toArray(new String[args.size()]);
         } else {
-            throw new CGISOAPTransformException("unsupported parameter type "+parameterType.getClass().getName()+"[]", null);
+            throw new CGISOAPTransformException("unsupported parameter type "+parameterType.getName()+"[]", null);
         }
     }
 
