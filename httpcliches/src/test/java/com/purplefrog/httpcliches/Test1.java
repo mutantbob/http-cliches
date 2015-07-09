@@ -241,4 +241,24 @@ public class Test1
 
         org.junit.Assert.assertArrayEquals(new int[0], (int[]) checkTransform(a, int[].class, "windows"));
     }
+
+    //
+
+    public static void cgifake11(@WebParam(name="weights")double[] weights)
+    {
+
+    }
+
+    public void test11()
+        throws CGIWebMethod.CGISOAPTransformException, NoSuchMethodException
+    {
+        Annotation[] a = Test1.class.getMethod("cgifake11", double[].class).getParameterAnnotations()[0];
+
+        double[] got=(double[]) checkTransform(a, double[].class, "weights", "77", "", "1.2", "-4.0", "", "");
+        assertEquals(3, got.length);
+        assertEquals(77.0, got[0]);
+        assertEquals(1.2, got[1]);
+        assertEquals(-4.0, got[2]);
+//        org.junit.Assert.assertArrayEquals(new double[]{77, 1.2, -4}, got);
+    }
 }

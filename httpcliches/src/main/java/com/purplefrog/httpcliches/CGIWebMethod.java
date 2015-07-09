@@ -181,6 +181,18 @@ public class CGIWebMethod
             }
             return rval;
 
+        } else if (parameterType.isAssignableFrom(double.class)) {
+
+            double[] rval = new double[args.size()];
+            int j=0;
+            for (int i = 0; i < rval.length; i++) {
+                String arg=args.get(i);
+                if (arg.length()>0)
+                    rval[j++] = Double.parseDouble(arg);
+            }
+            rval = maybeShrink(rval, j);
+            return rval;
+
         } else if (parameterType.isAssignableFrom(String.class)) {
 
             if (args==null)
@@ -190,6 +202,15 @@ public class CGIWebMethod
         } else {
             throw new CGISOAPTransformException("unsupported parameter type "+parameterType.getName()+"[]", null);
         }
+    }
+
+    public static  double[] maybeShrink(double[] rval, int properLength)
+    {
+        if (rval.length <= properLength)
+            return rval;
+
+        double[] replacement = Arrays.copyOfRange(rval, 0, properLength);
+        return replacement;
     }
 
     private static <T extends Annotation>  T grep(Annotation[] annotations, Class<T> cls)
