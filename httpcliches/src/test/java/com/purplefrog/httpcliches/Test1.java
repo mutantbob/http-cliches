@@ -261,4 +261,24 @@ public class Test1
         assertEquals(-4.0, got[2]);
 //        org.junit.Assert.assertArrayEquals(new double[]{77, 1.2, -4}, got);
     }
+    //
+
+    public static void cgifake12(@WebParam(name="flags")boolean[] flags)
+    {
+
+    }
+
+    public void test12()
+        throws CGIWebMethod.CGISOAPTransformException, NoSuchMethodException
+    {
+        Annotation[] a = Test1.class.getMethod("cgifake12", boolean[].class).getParameterAnnotations()[0];
+
+        boolean[] got=(boolean[]) checkTransform(a, boolean[].class, "flags", "1", "0", "true", "false");
+        assertEquals(4, got.length);
+        assertEquals(true, got[0]);
+        assertEquals(false, got[1]);
+        assertEquals(true, got[2]);
+        assertEquals(false, got[3]);
+//        org.junit.Assert.assertArrayEquals(new double[]{77, 1.2, -4}, got);
+    }
 }

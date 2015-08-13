@@ -109,15 +109,13 @@ public class CGIWebMethod
             if (arg_==null)
                 return Boolean.valueOf("");
 
-            String argl = arg_.toLowerCase();
-            return "true".equals(argl) || "on".equals(argl) || "1".equals(argl);
+            return booleanFromWeb(arg_);
 
         } else if (parameterType.isAssignableFrom(Boolean.class)) {
             if (arg_==null)
                 return null;
 
-            String argl = arg_.toLowerCase();
-            return "true".equals(argl) || "on".equals(argl) || "1".equals(argl);
+            return booleanFromWeb(arg_);
 
         } else if (parameterType.isAssignableFrom(long.class)) {
             if (arg_==null)
@@ -149,6 +147,14 @@ public class CGIWebMethod
         } else {
             throw new CGISOAPTransformException("unsupported parameter type "+parameterType.getName(), null);
         }
+    }
+
+    public static boolean booleanFromWeb(String raw)
+    {
+        if (raw==null)
+            return false;
+        String lower = raw.toLowerCase();
+        return "true".equals(lower) || "on".equals(lower) || "1".equals(lower);
     }
 
     public static Object transformArray(List<String> args, Class<?> parameterType, Annotation[] annotations)
@@ -199,6 +205,16 @@ public class CGIWebMethod
                 return new String[0];
 
             return args.toArray(new String[args.size()]);
+
+        } else if (parameterType.isAssignableFrom(boolean.class)) {
+
+            boolean[] rval = new boolean[args.size()];
+            int j=0;
+            for (int i = 0; i < rval.length; i++) {
+                rval[j++] = booleanFromWeb(args.get(i));
+            }
+            return rval;
+
         } else {
             throw new CGISOAPTransformException("unsupported parameter type "+parameterType.getName()+"[]", null);
         }
