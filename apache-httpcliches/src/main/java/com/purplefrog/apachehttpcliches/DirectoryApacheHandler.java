@@ -95,7 +95,7 @@ public class DirectoryApacheHandler
 
             ContentType mime = ApacheHTTPCliches.mimeTypeFor(target);
             if (range==null) {
-                PartialFileEntity entity = new PartialFileEntity(target, new ByteRangeSpec(0, target.length()), mime, callback);
+                PartialFileEntity entity = new PartialFileEntity(target, new ByteRangeSpec(0, target.length()-1), mime, callback);
                 return new EntityAndHeaders(200, entity, ACCEPT_RANGES_BYTES);
             } else
                 return handleSubset2(target, mime, range, callback);

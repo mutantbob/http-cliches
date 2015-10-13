@@ -74,7 +74,7 @@ public class HTMLTools
 
     public static String firstOrNull(List<String> list)
     {
-        if (list ==null)
+        if (list ==null || list.isEmpty())
             return null;
         else
             return list.get(0);
@@ -160,7 +160,10 @@ public class HTMLTools
                 } else if ('-' == ch
                            || '_' == ch
                            || '.' == ch
-                           || '~' == ch) {
+                           || '~' == ch
+                           || ':' == ch
+                           || '/' == ch
+                           || '?' == ch) {
                     rval.append(ch);
                 } else {
                     rval.append("%" + Character.forDigit(0xf & (ch >> 4), 16) +

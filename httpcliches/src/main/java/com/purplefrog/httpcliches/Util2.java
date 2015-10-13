@@ -83,8 +83,12 @@ public class Util2
 
     public static String mimeTypeFor(File target)
     {
+        return mimeTypeFor(target.getPath());
+    }
 
-        final String pathLower = target.getPath().toLowerCase();
+    public static String mimeTypeFor(String path)
+    {
+        final String pathLower = path.toLowerCase();
         if (pathLower.endsWith(".html")) {
             return "text/html";
         } else if (pathLower.endsWith(".css")) {
@@ -99,9 +103,17 @@ public class Util2
             return "video/x-matroska";
         } else if (pathLower.endsWith(".txt")) {
             return "text/plain";
+        } else if (pathLower.endsWith(".m3u")) {
+            return "audio/x-mpegurl";
+        } else if (pathLower.endsWith(".m3u8")) {
+            return "application/vnd.apple.mpegurl";
+        } else if (pathLower.endsWith(".ts")) {
+            return "video/MP2T";
+        } else if (pathLower.endsWith(".mpeg")) {
+            return "video/mpeg";
         } else {
             if (true)
-                return URLConnection.guessContentTypeFromName(target.getName());
+                return URLConnection.guessContentTypeFromName(path);
             return "application/binary";
         }
     }

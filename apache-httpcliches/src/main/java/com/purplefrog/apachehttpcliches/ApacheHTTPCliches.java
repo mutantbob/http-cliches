@@ -132,6 +132,11 @@ public class ApacheHTTPCliches
         return ContentType.create(Util2.mimeTypeFor(target));
     }
 
+    public static ContentType mimeTypeFor(String path)
+    {
+        return ContentType.create(Util2.mimeTypeFor(path));
+    }
+
     public static String requestBodyAsString(HttpRequest request_)
         throws IOException
     {

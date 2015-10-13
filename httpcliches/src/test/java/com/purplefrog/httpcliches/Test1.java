@@ -86,16 +86,9 @@ public class Test1
         assertEquals(Boolean.FALSE, checkTransform(a, boolean.class, "b", "false"));
         assertEquals(Boolean.FALSE, checkTransform(a, boolean.class, "b", "0"));
 
-        try {
-
-            checkTransform(a, boolean.class, "blargh", "0");
-            fail("did not throw the exception I need");
-
-        } catch (CGIWebMethod.CGISOAPTransformException e) {
-            assertTrue("threw properly", true);
-
-        }
-
+        // booleans are a special case.  The checkboxes in HTML, if unchecked, just don't appear in the parameter list
+        // So if we provide no arguments, I still expect a False.
+        assertEquals(Boolean.FALSE, checkTransform(a, boolean.class, "b"));
     }
 
     public static Object checkTransform(Annotation[] a, Class<?> parameterType, String parameterName, String... values)
@@ -103,7 +96,9 @@ public class Test1
     {
         Map<String, List<String>> cgi = new TreeMap<String, List<String>>();
 
-        cgi.put(parameterName, Arrays.asList(values));
+        if (0<values.length)
+            cgi.put(parameterName, Arrays.asList(values));
+
         return CGIWebMethod.transform(parameterType, a, new CGIEnvironment(cgi), "placeholder");
     }
 
@@ -230,4 +225,60 @@ public class Test1
 
     }
 
+    //
+
+    public static void cgifake10(@WebParam(name="windows")int[] windows)
+    {
+
+    }
+
+    public void test10()
+        throws NoSuchMethodException, CGIWebMethod.CGISOAPTransformException
+    {
+        Annotation[] a = Test1.class.getMethod("cgifake10", int[].class).getParameterAnnotations()[0];
+
+        org.junit.Assert.assertArrayEquals(new int[]{1,10,60}, (int[])checkTransform(a, int[].class, "windows", "1", "10", "60"));
+
+        org.junit.Assert.assertArrayEquals(new int[0], (int[]) checkTransform(a, int[].class, "windows"));
+    }
+
+    //
+
+    public static void cgifake11(@WebParam(name="weights")double[] weights)
+    {
+
+    }
+
+    public void test11()
+        throws CGIWebMethod.CGISOAPTransformException, NoSuchMethodException
+    {
+        Annotation[] a = Test1.class.getMethod("cgifake11", double[].class).getParameterAnnotations()[0];
+
+        double[] got=(double[]) checkTransform(a, double[].class, "weights", "77", "", "1.2", "-4.0", "", "");
+        assertEquals(3, got.length);
+        assertEquals(77.0, got[0]);
+        assertEquals(1.2, got[1]);
+        assertEquals(-4.0, got[2]);
+//        org.junit.Assert.assertArrayEquals(new double[]{77, 1.2, -4}, got);
+    }
+    //
+
+    public static void cgifake12(@WebParam(name="flags")boolean[] flags)
+    {
+
+    }
+
+    public void test12()
+        throws CGIWebMethod.CGISOAPTransformException, NoSuchMethodException
+    {
+        Annotation[] a = Test1.class.getMethod("cgifake12", boolean[].class).getParameterAnnotations()[0];
+
+        boolean[] got=(boolean[]) checkTransform(a, boolean[].class, "flags", "1", "0", "true", "false");
+        assertEquals(4, got.length);
+        assertEquals(true, got[0]);
+        assertEquals(false, got[1]);
+        assertEquals(true, got[2]);
+        assertEquals(false, got[3]);
+//        org.junit.Assert.assertArrayEquals(new double[]{77, 1.2, -4}, got);
+    }
 }

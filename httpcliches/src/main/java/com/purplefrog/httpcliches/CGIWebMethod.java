@@ -107,17 +107,15 @@ public class CGIWebMethod
 
         } else if (parameterType.isAssignableFrom(boolean.class)) {
             if (arg_==null)
-                throw new CGISOAPTransformException("missing parameter "+a.name()+" can't be omitted", a.name());
+                return Boolean.valueOf("");
 
-            String argl = arg_.toLowerCase();
-            return "true".equals(argl) || "on".equals(argl) || "1".equals(argl);
+            return booleanFromWeb(arg_);
 
         } else if (parameterType.isAssignableFrom(Boolean.class)) {
             if (arg_==null)
                 return null;
 
-            String argl = arg_.toLowerCase();
-            return "true".equals(argl) || "on".equals(argl) || "1".equals(argl);
+            return booleanFromWeb(arg_);
 
         } else if (parameterType.isAssignableFrom(long.class)) {
             if (arg_==null)
@@ -131,6 +129,18 @@ public class CGIWebMethod
 
             return Long.parseLong(arg_);
 
+        } else if (parameterType.isAssignableFrom(float.class)) {
+            if (arg_==null)
+                return null;
+
+            return Float.parseFloat(arg_);
+
+        } else if (parameterType.isAssignableFrom(Float.class)) {
+            if (arg_==null)
+                return null;
+
+            return Float.parseFloat(arg_);
+
         } else if (parameterType.isAssignableFrom(String.class)) {
             return arg_;
 
@@ -139,9 +149,19 @@ public class CGIWebMethod
         }
     }
 
+    public static boolean booleanFromWeb(String raw)
+    {
+        if (raw==null)
+            return false;
+        String lower = raw.toLowerCase();
+        return "true".equals(lower) || "on".equals(lower) || "1".equals(lower);
+    }
+
     public static Object transformArray(List<String> args, Class<?> parameterType, Annotation[] annotations)
         throws CGISOAPTransformException
     {
+        if (args==null)
+            return Array.newInstance(parameterType, 0);
 
         if (parameterType.isAssignableFrom(int.class)) {
 
@@ -167,15 +187,46 @@ public class CGIWebMethod
             }
             return rval;
 
+        } else if (parameterType.isAssignableFrom(double.class)) {
+
+            double[] rval = new double[args.size()];
+            int j=0;
+            for (int i = 0; i < rval.length; i++) {
+                String arg=args.get(i);
+                if (arg.length()>0)
+                    rval[j++] = Double.parseDouble(arg);
+            }
+            rval = maybeShrink(rval, j);
+            return rval;
+
         } else if (parameterType.isAssignableFrom(String.class)) {
 
             if (args==null)
                 return new String[0];
 
             return args.toArray(new String[args.size()]);
+
+        } else if (parameterType.isAssignableFrom(boolean.class)) {
+
+            boolean[] rval = new boolean[args.size()];
+            int j=0;
+            for (int i = 0; i < rval.length; i++) {
+                rval[j++] = booleanFromWeb(args.get(i));
+            }
+            return rval;
+
         } else {
-            throw new CGISOAPTransformException("unsupported parameter type "+parameterType.getClass().getName()+"[]", null);
+            throw new CGISOAPTransformException("unsupported parameter type "+parameterType.getName()+"[]", null);
         }
+    }
+
+    public static  double[] maybeShrink(double[] rval, int properLength)
+    {
+        if (rval.length <= properLength)
+            return rval;
+
+        double[] replacement = Arrays.copyOfRange(rval, 0, properLength);
+        return replacement;
     }
 
     private static <T extends Annotation>  T grep(Annotation[] annotations, Class<T> cls)
@@ -187,6 +238,12 @@ public class CGIWebMethod
         return null;
     }
 
+    /**
+     *
+     * @param cls the class whose methods we should search for a matching {@link WebMethod} annotation
+     * @param name This is probably new URI(request.getRequestLine().getUri()).getPath().substring(idx)
+     * @return
+     */
     public static Method matchName(Class cls, String name)
     {
         Method[] ms = cls.getMethods();
