@@ -145,6 +145,8 @@ public class CGIWebMethod
             return arg_;
 
         } else if (parameterType.isEnum()) {
+            if (arg_==null)
+                return null;
             return Enum.valueOf((Class<? extends Enum>) parameterType, arg_);
         } else {
             throw new CGISOAPTransformException("unsupported parameter type "+parameterType.getName(), null);
