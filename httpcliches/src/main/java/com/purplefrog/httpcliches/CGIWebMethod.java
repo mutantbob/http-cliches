@@ -102,6 +102,8 @@ public class CGIWebMethod
         } else if (parameterType.isAssignableFrom(Double.class)) {
             if (arg_==null)
                 return null;
+            if (arg_.length()<1)
+                return null;
 
             return Double.parseDouble(arg_);
 
