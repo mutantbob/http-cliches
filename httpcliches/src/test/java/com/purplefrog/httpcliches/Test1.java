@@ -281,4 +281,23 @@ public class Test1
         assertEquals(false, got[3]);
 //        org.junit.Assert.assertArrayEquals(new double[]{77, 1.2, -4}, got);
     }
+
+    static enum Bacon
+    {
+        tasty, delicious
+    }
+
+    public static void cgifake13(@WebParam(name="bacon")Bacon bacon)
+    {
+
+    }
+
+    public void test13()
+        throws CGIWebMethod.CGISOAPTransformException, NoSuchMethodException
+    {
+        Annotation[] a = Test1.class.getMethod("cgifake13", Bacon.class).getParameterAnnotations()[0];
+
+        Bacon got=(Bacon) checkTransform(a, Bacon.class, "bacon", "tasty");
+        assertEquals(Bacon.tasty, got);
+    }
 }

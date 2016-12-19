@@ -70,7 +70,7 @@ public class EntityAndHeaders
 
     public static EntityAndHeaders plainPayload(int statusCode, String payload, String mimeType)
     {
-        return new EntityAndHeaders(statusCode, new Header[]{new BasicHeader("Content-Type", mimeType)}, ApacheHTTPCliches.boringStringEntity(payload));
+        return new EntityAndHeaders(statusCode, null, ApacheHTTPCliches.boringStringEntity(payload, mimeType));
     }
 
     public static EntityAndHeaders plainPayload(int statusCode, byte[] payload, String mimeType)
