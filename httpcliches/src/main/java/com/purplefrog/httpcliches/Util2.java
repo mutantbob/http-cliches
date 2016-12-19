@@ -109,6 +109,8 @@ public class Util2
             return "video/MP2T";
         } else if (pathLower.endsWith(".mpeg")) {
             return "video/mpeg";
+        } else if (pathLower.endsWith(".svg")) {
+            return "image/svg+xml";
         } else {
             if (true)
                 return URLConnection.guessContentTypeFromName(path);
