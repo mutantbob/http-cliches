@@ -38,7 +38,7 @@ public class ApacheCGI
     public static CGIEnvironment parseEnv(HttpRequest req, HttpContext context)
         throws IOException, URISyntaxException
     {
-        CGIEnvironment rval = new CGIEnvironment(parseCGI(req));
+        CGIEnvironment rval = new CGIEnvironmentApache(parseCGI(req), req, context);
         HttpHost targetHost = ApacheHTTPCliches.httpTargetHost(context);
         rval.serverName = targetHost.getHostName();
         rval.serverPort = targetHost.getPort();
