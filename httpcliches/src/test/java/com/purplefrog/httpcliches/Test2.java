@@ -66,18 +66,20 @@ public class Test2
         map.put("bacon", "tasty&delicious");
         st.add("y", map);
 
-        assertEquals("i<j&k>j\n" +
-            "i&lt;j&amp;k&gt;j\n" +
-            "i<j\n" +
-            "i&lt;j\n" +
-            "k>j\n" +
-            "k&gt;j\n" +
-            "tasty&delicious\n" +
-            "tasty&amp;delicious\n" +
-            "tasty&delicious\n" +
-            "[tasty&amp;delicious]\n" +
-            "q\n" +
-            "tasty&amp;delicious\n" , st.render());
+        String render = st.render();
+        render = render.replaceAll("\r\n", "\n");
+        assertEquals("i<j&k>j\n"+
+            "i&lt;j&amp;k&gt;j\n"+
+            "i<j\n"+
+            "i&lt;j\n"+
+            "k>j\n"+
+            "k&gt;j\n"+
+            "tasty&delicious\n"+
+            "tasty&amp;delicious\n"+
+            "tasty&delicious\n"+
+            "[tasty&amp;delicious]\n"+
+            "q\n"+
+            "tasty&amp;delicious\n" , render);
     }
 
 
