@@ -72,6 +72,16 @@ public class ApacheHTTPCliches
     public static String redirectPath(HttpContext context, String newPath)
     {
         HttpHost target = httpTargetHost(context);
+        HttpRequest req = (HttpRequest) context.getAttribute(ExecutionContext.HTTP_REQUEST);
+        req.getRequestLine().getUri();
+        String tmp = target.toURI() + req.getRequestLine().getUri();
+        try {
+            URI uri = new URI(tmp);
+            return uri.resolve(newPath).toString();
+        } catch (URISyntaxException e) {
+            logger.warn("wat", e);
+        }
+
         StringBuilder rval = new StringBuilder(target.toURI());
         if ( ! newPath.startsWith("/")) {
             rval.append('/');
