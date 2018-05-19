@@ -44,12 +44,25 @@ public class BasicHTTPAcceptLoop
     public BasicHTTPAcceptLoop(int port, HttpRequestHandlerResolver registry, Executor executor)
         throws IOException
     {
-        serversocket = new ServerSocket(port);
+        this(new ServerSocket(port), registry, executor);
+    }
+
+    /**
+     *
+     * @param ss Probably {@link ServerSocket#ServerSocket(int)}; but may be the result of {@link javax.net.ssl.SSLServerSocketFactory#createServerSocket(int)}
+     * @param registry
+     * @param executor
+     * @see com.purplefrog.httpcliches.Util2#makeSSLSocketFactory(InputStream, String, String)
+     */
+    public BasicHTTPAcceptLoop(ServerSocket ss, HttpRequestHandlerResolver registry, Executor executor)
+    {
+        serversocket = ss;
+        this.registry = registry;
+        this.executor = executor;
 
         params = clicheParams();
-        HttpProcessor httpproc = clicheProcessor();
 
-        this.registry = registry;
+        HttpProcessor httpproc = clicheProcessor();
 
         // Set up the HTTP service
         httpService = new HttpService(
@@ -59,7 +72,6 @@ public class BasicHTTPAcceptLoop
             registry,
             params);
 
-        this.executor = executor;
     }
 
     public void setReadTimeoutSeconds(int seconds)
