@@ -3,10 +3,14 @@ package com.purplefrog.httpcliches;
 import java.io.*;
 import java.lang.reflect.*;
 import java.net.*;
+import java.security.*;
+import java.security.cert.*;
 import java.util.*;
 import java.util.regex.*;
 
 import org.apache.log4j.*;
+
+import javax.net.ssl.*;
 
 /**
  * <p>Copyright (C) 2012 Robert Forsman, Purple Frog Software
@@ -186,4 +190,21 @@ public class Util2
             return Math.min(range[1], entityLength-1);
     }
 
+    public static SSLServerSocketFactory makeSSLSocketFactory(InputStream keystoreStream, String keystorePassword, String keyPassword)
+        throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException, KeyManagementException
+    {
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+        keyStore.load(keystoreStream, keystorePassword.toCharArray());
+
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        kmf.init(keyStore, keyPassword.toCharArray());
+
+        SSLContext sc = SSLContext.getInstance(
+                "TLSv1.2"
+//                "TLSv1"
+        );
+        sc. init(kmf.getKeyManagers(), null, new SecureRandom());
+
+        return sc.getServerSocketFactory();
+    }
 }
