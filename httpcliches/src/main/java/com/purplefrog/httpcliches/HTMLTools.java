@@ -19,24 +19,24 @@ public class HTMLTools
     private static final Logger logger = Logger.getLogger(HTMLTools.class);
     public static final DateFormat RFC1123FORMAT = new SimpleDateFormat("EEE, dd MMM yyyyy HH:mm:ss z", Locale.US);
 
-    public static Map<String, List<String>> parseCGIArgs(URI uri)
+    public static Map<String, List<Object>> parseCGIArgs(URI uri)
     {
         return parseCGIArgs(uri.getRawQuery());
     }
 
-    public static Map<String, List<String>> parseCGIArgs(String rawQuery)
+    public static Map<String, List<Object>> parseCGIArgs(String rawQuery)
     {
         logger.debug("parseCGIArgs('"+rawQuery+"')");
-        Map<String, List<String>> cgiParameters = new TreeMap<String, List<String>>();
+        Map<String, List<Object>> cgiParameters = new TreeMap<String, List<Object>>();
         if (rawQuery !=null) {
             return parseCGIQueryString(rawQuery);
         }
         return cgiParameters;
     }
 
-    public static Map<String, List<String>> parseCGIQueryString(String queryString)
+    public static Map<String, List<Object>> parseCGIQueryString(String queryString)
     {
-        Map<String, List<String>> cgiParameters = new HashMap<String, List<String>>();
+        Map<String, List<Object>> cgiParameters = new HashMap<String, List<Object>>();
 
         if (queryString==null)
             return cgiParameters;
@@ -61,9 +61,9 @@ public class HTMLTools
 
 
             String key = unescapeCGI(key_);
-            List<String> va = cgiParameters.get(key);
+            List<Object> va = cgiParameters.get(key);
             if (va==null) {
-                va = new ArrayList<String>(1);
+                va = new ArrayList<Object>(1);
                 cgiParameters.put(key, va);
             }
             va.add(unescapeCGI(value_));
@@ -72,7 +72,15 @@ public class HTMLTools
         return cgiParameters;
     }
 
-    public static String firstOrNull(List<String> list)
+    public static String firstOrNull(List<Object> list)
+    {
+        if (list ==null || list.isEmpty())
+            return null;
+        else
+            return list.get(0).toString();
+    }
+
+    public static Object firstOrNullO(List<Object> list)
     {
         if (list ==null || list.isEmpty())
             return null;
