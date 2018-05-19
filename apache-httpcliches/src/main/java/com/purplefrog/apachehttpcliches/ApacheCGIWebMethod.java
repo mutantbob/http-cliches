@@ -6,6 +6,7 @@ import java.net.*;
 import java.util.*;
 import javax.jws.*;
 import com.purplefrog.httpcliches.*;
+import org.apache.commons.fileupload.*;
 import org.apache.http.*;
 import org.apache.http.protocol.*;
 import org.apache.log4j.*;
@@ -73,7 +74,7 @@ public class ApacheCGIWebMethod
      * This exists to be overridden by the user.
      */
     public EntityAndHeaders processThingus_(HttpRequest request, String path, int idx, Object thingus, HttpContext context)
-        throws InvocationTargetException, IllegalAccessException, IOException, URISyntaxException, CGIWebMethod.CGISOAPTransformException
+        throws InvocationTargetException, IllegalAccessException, IOException, URISyntaxException, CGIWebMethod.CGISOAPTransformException, FileUploadException
     {
         return processThingus(thingus, request, path.substring(idx+1), context);
     }
@@ -88,7 +89,7 @@ public class ApacheCGIWebMethod
      * @see CGIWebMethod#transformCGIArgumentsToJavaParams(Method, CGIEnvironment)
      */
     public static EntityAndHeaders processThingus(Object thingus, HttpRequest req, String methodName, HttpContext context)
-        throws InvocationTargetException, IllegalAccessException, IOException, URISyntaxException, CGIWebMethod.CGISOAPTransformException
+        throws InvocationTargetException, IllegalAccessException, IOException, URISyntaxException, CGIWebMethod.CGISOAPTransformException, FileUploadException
 
     {
         Class<? extends Object> cls = thingus.getClass();

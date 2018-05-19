@@ -39,7 +39,7 @@ public class Test1
     public void test2()
         throws CGIWebMethod.CGISOAPTransformException, NoSuchMethodException
     {
-        Map<String, List<String>> cgi = new TreeMap<String, List<String>>();
+        Map<String, List<Object>> cgi = new TreeMap<String, List<Object>>();
 
         Annotation[] a = Test1.class.getMethod("cgifake1", Map.class).getParameterAnnotations()[0];
 
@@ -94,10 +94,10 @@ public class Test1
     public static Object checkTransform(Annotation[] a, Class<?> parameterType, String parameterName, String... values)
         throws CGIWebMethod.CGISOAPTransformException
     {
-        Map<String, List<String>> cgi = new TreeMap<String, List<String>>();
+        Map<String, List<Object>> cgi = new TreeMap<String, List<Object>>();
 
         if (0<values.length)
-            cgi.put(parameterName, Arrays.asList(values));
+            cgi.put(parameterName, Arrays.asList((Object[])values));
 
         return CGIWebMethod.transform(parameterType, a, new CGIEnvironment(cgi), "placeholder");
     }
@@ -113,7 +113,7 @@ public class Test1
         throws NoSuchMethodException, CGIWebMethod.CGISOAPTransformException
     {
 
-        Map<String, List<String>> cgi = new TreeMap<String, List<String>>();
+        Map<String, List<Object>> cgi = new TreeMap<String, List<Object>>();
 
         Annotation[] a = Test1.class.getMethod("cgifake3", String[].class).getParameterAnnotations()[0];
 

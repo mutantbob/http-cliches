@@ -17,7 +17,7 @@ public class CGIEnvironmentApache
     public HttpRequest request;
     public HttpContext context;
 
-    public CGIEnvironmentApache(Map<String, List<String>> args, HttpRequest req, HttpContext context)
+    public CGIEnvironmentApache(Map<String, List<Object>> args, HttpRequest req, HttpContext context)
     {
         super(args);
         this.request = req;

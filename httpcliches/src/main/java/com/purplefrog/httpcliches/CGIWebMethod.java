@@ -5,6 +5,7 @@ import java.lang.reflect.*;
 import java.util.*;
 import javax.jws.*;
 
+import org.apache.commons.fileupload.*;
 import org.apache.log4j.*;
 
 /**
@@ -54,7 +55,7 @@ public class CGIWebMethod
     public static Object transform(Class<?> parameterType, Annotation[] annotations, CGIEnvironment cgiEnv, String annotationDebugTag)
         throws CGISOAPTransformException
     {
-        Map<String, List<String>> cgiArgs = cgiEnv.args;
+        Map<String, List<Object>> cgiArgs = cgiEnv.args;
         WebParam a = grep(annotations, WebParam.class);
         if (a == null)
             throw new CGISOAPTransformException("parameter lacks WebParam annotation", null);
@@ -71,7 +72,7 @@ public class CGIWebMethod
             throw new CGISOAPTransformException("WebParam annotation for " +annotationDebugTag+
                 " has blank name", a.name());
 
-        List<String> arg = cgiArgs.get(a.name());
+        List<Object> arg = cgiArgs.get(a.name());
 
         if (parameterType.isArray()) {
             return transformArray(arg, parameterType.getComponentType(), annotations);
@@ -79,7 +80,17 @@ public class CGIWebMethod
 
         // must be a scalar
 
-        String arg_ = HTMLTools.firstOrNull(arg);
+        Object arg__ = HTMLTools.firstOrNullO(arg);
+
+        if (parameterType.isAssignableFrom(FileItem.class)) {
+            if (arg__ instanceof FileItem) {
+                return (FileItem) arg__;
+            } else {
+                throw new CGISOAPTransformException("expecting a FileItem for parameter"+a.name(), a.name());
+            }
+        }
+
+        String arg_ = arg__==null ? null : arg__.toString();
 
         if (parameterType.isAssignableFrom(int.class)) {
             if (arg_==null)
@@ -163,7 +174,7 @@ public class CGIWebMethod
         return "true".equals(lower) || "on".equals(lower) || "1".equals(lower);
     }
 
-    public static Object transformArray(List<String> args, Class<?> parameterType, Annotation[] annotations)
+    public static Object transformArray(List<Object> args, Class<?> parameterType, Annotation[] annotations)
         throws CGISOAPTransformException
     {
         if (args==null)
@@ -175,7 +186,7 @@ public class CGIWebMethod
             int j=0;
             for (int i = 0; i < rval.length; i++) {
 
-                String s = args.get(i);
+                String s = args.get(i).toString();
                 if (s!=null)
                     rval[j++] = Integer.parseInt(s);
             }
@@ -189,7 +200,7 @@ public class CGIWebMethod
 
             Integer[] rval = new Integer[args.size()];
             for (int i = 0; i < rval.length; i++) {
-                rval[i] = Integer.parseInt(args.get(i));
+                rval[i] = Integer.parseInt(args.get(i).toString());
             }
             return rval;
 
@@ -198,7 +209,7 @@ public class CGIWebMethod
             double[] rval = new double[args.size()];
             int j=0;
             for (int i = 0; i < rval.length; i++) {
-                String arg=args.get(i);
+                String arg=args.get(i).toString();
                 if (arg.length()>0)
                     rval[j++] = Double.parseDouble(arg);
             }
@@ -217,7 +228,7 @@ public class CGIWebMethod
             boolean[] rval = new boolean[args.size()];
             int j=0;
             for (int i = 0; i < rval.length; i++) {
-                rval[j++] = booleanFromWeb(args.get(i));
+                rval[j++] = booleanFromWeb(args.get(i).toString());
             }
             return rval;
 

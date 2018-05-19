@@ -13,11 +13,11 @@ public class CGIEnvironment
     public String serverName;
     public int serverPort;
     public String pathInfo;
-    public Map<String, List<String>> args;
+    public Map<String, List<Object>> args;
     public InetAddress remoteAddress=null;
     public int remotePort=0;
 
-    public CGIEnvironment(Map<String, List<String>> args)
+    public CGIEnvironment(Map<String, List<Object>> args)
     {
          this.args = args;
     }
