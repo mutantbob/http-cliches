@@ -59,7 +59,6 @@ public class HTTPTools
      * What is the address of our server according to the client?
      */
     public static String serverAddress(HttpExchange hx)
-        throws MalformedURLException
     {
         String hostPort = hx.getRequestHeaders().getFirst("Host");
         if (hostPort==null) {
