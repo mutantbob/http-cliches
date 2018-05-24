@@ -64,7 +64,7 @@ public class SunCGIWebMethod
         if (m==null)
             return null;
 
-        Map<String, List<String>> cgiArgs = SunCGI.parseCGI(hx);
+        Map<String, List<Object>> cgiArgs = SunCGI.parseCGI(hx);
 
         Object[] params = CGIWebMethod.transformCGIArgumentsToJavaParams(m, new CGIEnvironment(cgiArgs));
 

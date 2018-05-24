@@ -16,7 +16,7 @@ public class SunCGI
     private static final Logger logger = Logger.getLogger(SunCGI.class);
 
 
-    public static Map<String, List<String>> parseCGI(HttpExchange hx)
+    public static Map<String, List<Object>> parseCGI(HttpExchange hx)
         throws IOException
     {
         if ("GET".equals(hx.getRequestMethod())) {
