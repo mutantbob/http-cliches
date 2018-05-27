@@ -28,17 +28,11 @@ import org.apache.log4j.*;
  * $Date 11/29/11 $
  */
 public class BasicHTTPAcceptLoop
+    extends BasicHTTPSuite
     implements Runnable
 {
-    private static final Logger logger = Logger.getLogger(BasicHTTPAcceptLoop.class);
-
-
     public final ServerSocket serversocket;
-    public final HttpParams params;
-    public final HttpService httpService;
-    public final HttpRequestHandlerResolver registry;
 
-    protected Executor executor;
     private boolean pleaseStop = false;
 
     public BasicHTTPAcceptLoop(int port, HttpRequestHandlerResolver registry, Executor executor)
@@ -56,50 +50,8 @@ public class BasicHTTPAcceptLoop
      */
     public BasicHTTPAcceptLoop(ServerSocket ss, HttpRequestHandlerResolver registry, Executor executor)
     {
+        super(registry, executor);
         serversocket = ss;
-        this.registry = registry;
-        this.executor = executor;
-
-        params = clicheParams();
-
-        HttpProcessor httpproc = clicheProcessor();
-
-        // Set up the HTTP service
-        httpService = new HttpService(
-            httpproc,
-            new DefaultConnectionReuseStrategy(),
-            new DefaultHttpResponseFactory(),
-            registry,
-            params);
-
-    }
-
-    public void setReadTimeoutSeconds(int seconds)
-    {
-        httpService.getParams().setIntParameter(CoreConnectionPNames.SO_TIMEOUT, seconds *1000);
-    }
-
-    public HttpProcessor clicheProcessor()
-    {
-        // Set up the HTTP protocol processor
-        return new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-            new ResponseDate(),
-            new ResponseServer(),
-            new ResponseContent(),
-            new ResponseConnControl()
-        });
-    }
-
-    public HttpParams clicheParams()
-    {
-        HttpParams p = new SyncBasicHttpParams();
-        p
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 30*1000)
-            .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
-            .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpComponents/1.1");
-        return p;
     }
 
     public void run() {
@@ -124,11 +76,6 @@ public class BasicHTTPAcceptLoop
             logger.warn("I/O error initialising connection thread: ", e);
         }
         logger.error("accept loop for port "+serversocket.getLocalPort()+" ending");
-    }
-
-    public Runnable fabricateWorker(HttpServerConnection conn)
-    {
-        return new HTTPWorkerThread(httpService, conn);
     }
 
     public void pleaseStop()
