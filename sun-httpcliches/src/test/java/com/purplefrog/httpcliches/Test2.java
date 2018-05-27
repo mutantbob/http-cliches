@@ -18,7 +18,7 @@ public class Test2
         throws CGIWebMethod.CGISOAPTransformException, NoSuchMethodException
     {
         Method m = Test2.class.getMethod("bacon", String.class, int.class, Integer.class, Integer.class, CGIEnvironment.class);
-        Map<String, List<String>> cgiArgs = HTMLTools.parseCGIArgs("alpha=bob&beta=7&gamma=-40");
+        Map<String, List<Object>> cgiArgs = HTMLTools.parseCGIArgs("alpha=bob&beta=7&gamma=-40");
 
         CGIEnvironment ce = new CGIEnvironment(cgiArgs);
         Object[] params = CGIWebMethod.transformCGIArgumentsToJavaParams(m, ce);
