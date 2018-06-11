@@ -133,7 +133,7 @@ public class CGIWebMethod
 
         } else if (parameterType.isAssignableFrom(float.class)) {
             if (arg_==null)
-                return null;
+                throw new CGISOAPTransformException("missing parameter "+a.name()+" can't be omitted", a.name());
 
             return Float.parseFloat(arg_);
 
