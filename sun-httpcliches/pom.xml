@@ -4,7 +4,7 @@
     <groupId>com.purplefrog</groupId>
     <artifactId>sun-httpcliches</artifactId>
     <packaging>jar</packaging>
-    <version>0.9-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <name>cliches for use with the Sun HTTP server library</name>
 
     <properties>
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>com.purplefrog</groupId>
             <artifactId>httpcliches</artifactId>
-            <version>0.9-SNAPSHOT</version>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>

@@ -4,18 +4,14 @@
     <groupId>com.purplefrog</groupId>
     <artifactId>apache-httpcliches</artifactId>
     <packaging>jar</packaging>
-    <version>0.9-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <name>cliches for use with the Apache HTTPCore library</name>
 
     <properties>
-        <repositoryHost>maven.purplefrog.com</repositoryHost>
-        <repositoryIdReleases>pfrog</repositoryIdReleases>
-        <repositoryURL>http://${repositoryHost}/~thoth/m2/</repositoryURL>
-        <repositoryDeployURL>file:/home/thoth/public_html/m2/</repositoryDeployURL>
-
-        <repositoryIdSnapshots>pfrog snapshots</repositoryIdSnapshots>
-        <repositoryURLSnapshots>http://${repositoryHost}/~thoth/m2S/</repositoryURLSnapshots>
-        <snapshotsDeployURL>file:/home/thoth/public_html/m2S/</snapshotsDeployURL>
+        <repositoryIdReleases>amarna</repositoryIdReleases>
+        <repositoryIdSnapshots>amarna</repositoryIdSnapshots>
+        <repositoryDeployURL>file:/gwell/homes5/thoth/.m2/</repositoryDeployURL>
+        <snapshotsDeployURL>file:/gwell/homes5/thoth/.m2/</snapshotsDeployURL>
     </properties>
 
     <!--scm>
@@ -49,7 +45,7 @@
         <dependency>
             <groupId>com.purplefrog</groupId>
             <artifactId>httpcliches</artifactId>
-            <version>0.9-SNAPSHOT</version>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -61,24 +57,14 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.14</version>
+            <version>1.2.17</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.4</version>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>1.2.2</version>
         </dependency>
         <dependency>
             <groupId>commons-fileupload</groupId>
@@ -89,6 +75,12 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+            <scope>compile</scope>
         </dependency>
 
     </dependencies>
@@ -116,7 +108,7 @@
         <repository>
             <id>${repositoryIdReleases}</id>
             <name>pfrog</name>
-            <url>${repositoryURL}</url>
+            <url>${repositoryDeployURL}</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -125,7 +117,7 @@
         <repository>
             <id>${repositoryIdSnapshots}</id>
             <name>pfrog snapshots</name>
-            <url>${repositoryURLSnapshots}</url>
+            <url>${snapshotsDeployURL}</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
