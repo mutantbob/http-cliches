@@ -144,7 +144,7 @@ public class CGIWebMethod
 
         } else if (parameterType.isAssignableFrom(float.class)) {
             if (arg_==null)
-                return null;
+                throw new CGISOAPTransformException("missing parameter "+a.name()+" can't be omitted", a.name());
 
             return Float.parseFloat(arg_);
 
@@ -285,6 +285,20 @@ public class CGIWebMethod
             return a.operationName();
     }
 
+    /**
+     * Use {@link #matchName(Class, String)} to find a method on thingus with name methodName and a {@link WebMethod} annotation.
+     * Then use {@link #transformCGIArgumentsToJavaParams(Method, CGIEnvironment)} on cgiEnv to extract the CGI parameters.
+     * Then use {@link Method#invoke(Object, Object...)} to call the method found in the first step using the arguments extracted in the second step
+     * and return the result.
+     * @param thingus
+     * @param methodName
+     * @param cgiEnv
+     * @return
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
+     * @throws CGISOAPTransformException
+     * @throws NoSuchMethodException
+     */
     public static Object invokeCGI(Object thingus, String methodName, CGIEnvironment cgiEnv)
         throws InvocationTargetException, IllegalAccessException, CGISOAPTransformException, NoSuchMethodException
     {

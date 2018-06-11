@@ -7,7 +7,7 @@ import org.apache.http.*;
 import org.apache.http.protocol.*;
 
 /**
- * <p>Copyright (C) 2017 Robert Forsman, Ericsson SATV
+ * <p>Copyright (C) 2017 Robert Forsman, , Purple Frog Software
  * $Author thoth $
  * $Date 5/12/17 $
  */
