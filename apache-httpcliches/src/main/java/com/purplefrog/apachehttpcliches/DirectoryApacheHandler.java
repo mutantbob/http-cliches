@@ -69,6 +69,7 @@ public class DirectoryApacheHandler
     }
 
     public EntityAndHeaders handleGET(HttpContext context, URI suffix_, String range, TransferCallback callback)
+        throws IOException
     {
         String suffix = suffix_.getPath();
         if ("".equals(suffix)) {
@@ -95,7 +96,7 @@ public class DirectoryApacheHandler
 
             ContentType mime = ApacheHTTPCliches.mimeTypeFor(target);
             if (range==null) {
-                PartialFileEntity entity = new PartialFileEntity(target, new ByteRangeSpec(0, target.length()-1), mime, callback);
+                HttpEntity entity = new PartialFileEntity(target, new ByteRangeSpec(0, target.length()-1), mime, callback);
                 return new EntityAndHeaders(200, entity, ACCEPT_RANGES_BYTES);
             } else
                 return handleSubset2(target, mime, range, callback);
@@ -107,17 +108,18 @@ public class DirectoryApacheHandler
     }
 
     public static EntityAndHeaders handleSubset2(File f, ContentType mime, String rangeHeader, TransferCallback callback)
+        throws IOException
     {
         long totalFileLength = f.length();
 
-        ByteRangeSpec brs = ByteRangeSpec.parseRange(rangeHeader, totalFileLength);
-
-        if (brs.end == null)
-            brs.end = totalFileLength-1;
+        ByteRangeSpec[] brs = ByteRangeSpec.parseMultiRange(rangeHeader, totalFileLength);
+        if (null==brs) {
+            logger.warn("null ByteRangeSpec after parsing "+rangeHeader);
+            return new EntityAndHeaders(200, new FileEntity(f, mime));
+        }
 
         PartialFileEntity en = new PartialFileEntity(f, brs, mime, callback);
-        BasicHeader contentRange = new BasicHeader("Content-Range", "bytes " + brs.start + "-" + brs.end + "/" + totalFileLength);
-        return new EntityAndHeaders(206, en, contentRange, ACCEPT_RANGES_BYTES);
+        return new EntityAndHeaders(206, en, en.extraHeaders());
     }
 
     public static EntityAndHeaders handleSubset(File f, String contentType, String rangeHeader, TransferCallback callback)

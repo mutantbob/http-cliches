@@ -1,7 +1,9 @@
 package com.purplefrog.apachehttpcliches;
 
 import com.purplefrog.httpcliches.*;
+import org.apache.http.*;
 import org.apache.http.entity.*;
+import org.apache.http.message.*;
 import org.apache.log4j.*;
 
 import java.io.*;
@@ -20,8 +22,12 @@ public class PartialFileEntity
 
 
     private final File f;
-    private final ByteRangeSpec brs;
+    protected final ByteRangeSpec[] brss;
     private TransferCallback callback;
+    protected String underlyingMIME;
+
+    protected byte[][] subHeaders=null;
+    protected String boundary=null;
 
     public PartialFileEntity(File f, ByteRangeSpec brs, ContentType contentType)
     {
@@ -33,6 +39,12 @@ public class PartialFileEntity
         this(f, brs, contentType.toString(), callback);
     }
 
+    public PartialFileEntity(File f, ByteRangeSpec[] brss, ContentType contentType, TransferCallback callback)
+        throws IOException
+    {
+        this(f, brss, contentType.toString(), callback);
+    }
+
     public PartialFileEntity(File f, ByteRangeSpec brs, String contentType)
     {
         this(f, brs, contentType, null);
@@ -41,9 +53,26 @@ public class PartialFileEntity
     public PartialFileEntity(File f, ByteRangeSpec brs, String contentType, TransferCallback callback)
     {
         this.f = f;
-        this.brs = brs;
+        this.brss = new ByteRangeSpec[]{brs};
         this.callback = callback;
+        underlyingMIME = contentType;
+
         setContentType(contentType);
+    }
+
+    public PartialFileEntity(File f, ByteRangeSpec[] brss, String contentType, TransferCallback callback)
+        throws IOException
+    {
+        this.f = f;
+        this.brss = brss;
+        this.callback = callback;
+        underlyingMIME = contentType;
+        if (brss.length==1)
+            setContentType(contentType);
+        else {
+            boundary = MultipartBoundaryPicker.chooseBoundary(brss, f);
+            setContentType("multipart/byteranges; boundary="+boundary);
+        }
     }
 
     /**
@@ -73,7 +102,41 @@ public class PartialFileEntity
     @Override
     public long getContentLength()
     {
-        return brs.length();
+        if (1==brss.length)
+            return brss[0].length(f.length());
+
+        byte[][] subHeaders = getSubHeaders();
+        long sum=0;
+        for (byte[] subHeader : subHeaders) {
+            sum += subHeader.length;
+        }
+        for (ByteRangeSpec br : brss) {
+            sum += br.length(f.length());
+        }
+        return sum;
+    }
+
+    public byte[][] getSubHeaders()
+    {
+        if (subHeaders==null)
+            subHeaders = fabricateSubHeaders();
+        return subHeaders;
+    }
+
+    public byte[][] fabricateSubHeaders()
+    {
+        long fileLength = f.length();
+        byte[][] rval = new byte[brss.length+1][];
+        for (int i=0; i<brss.length; i++) {
+
+            String tmp = "--"+boundary+"\r\n"
+                         +"Content-Type: "+underlyingMIME+"\r\n"
+                         +"Content-Range: "+brss[i].asContentRangeHeader(fileLength)+"\r\n" +
+                         "\r\n";
+            rval[i] = tmp.getBytes();
+        }
+        rval[brss.length] = ("--"+boundary+"--\r\n").getBytes();
+        return rval;
     }
 
     @Override
@@ -81,13 +144,17 @@ public class PartialFileEntity
         throws IOException, IllegalStateException
     {
         logger.debug("getContent()");
-        InputStream rval =new FileInputStream(f);
-        long remaining = brs.start;
-        while (remaining >0) {
-            long n = rval.skip(brs.start);
-            remaining -= n;
+        if (1==brss.length) {
+            InputStream rval = new FileInputStream(f);
+            long remaining = brss[0].start;
+            while (remaining>0) {
+                long n = rval.skip(brss[0].start);
+                remaining -= n;
+            }
+            return rval;
+        } else {
+            return new MultipartStream();
         }
-        return rval;
     }
 
     @Override
@@ -99,7 +166,7 @@ public class PartialFileEntity
 
         try {
 
-            long remaining = brs.length();
+            long remaining = getContentLength();
 
             if (null != callback)
                 try {
@@ -183,4 +250,98 @@ public class PartialFileEntity
     }
 
 
+    public Header[] extraHeaders()
+    {
+        if (brss.length==1) {
+            String val = brss[0].asContentRangeHeader(f.length());
+            BasicHeader contentRange = new BasicHeader("Content-Range", val);
+            return new Header[]{
+                contentRange,
+                new BasicHeader("Accept-Ranges", "bytes")
+            };
+        } else {
+            return new Header[] {
+                new BasicHeader("Accept-Ranges", "bytes")
+            };
+        }
+    }
+
+    public String getBoundary()
+    {
+        return boundary;
+    }
+
+
+    public class MultipartStream
+        extends InputStream
+    {
+        int partIndex=0;
+        long partCursor=0;
+
+        @Override
+        public int read(byte[] bytes, int pos, int toRead)
+            throws IOException
+        {
+            if (partIndex>brss.length*2)
+                return -1;
+
+            byte[][]subHeaders = getSubHeaders();
+            int rval=0;
+            RandomAccessFile raf=null;
+            try {
+                while (toRead>0 && partIndex<=brss.length*2) {
+                    if (partIndex%2==0) {
+                        byte[] shi = subHeaders[partIndex/2];
+                        int tr2 = (int) Math.min(toRead, shi.length-partCursor);
+                        System.arraycopy(shi, (int) partCursor, bytes, pos, tr2);
+                        partCursor += tr2;
+                        pos += tr2;
+                        toRead -= tr2;
+                        rval += tr2;
+
+                        if (partCursor >= shi.length) {
+                            partIndex++;
+                            partCursor=0;
+                        }
+                    } else {
+                        if (raf==null)
+                            raf = new RandomAccessFile(f, "r");
+
+                        ByteRangeSpec bRange = brss[partIndex/2];
+                        long brLen = bRange.length(raf.length());
+                        raf.seek(bRange.start+partCursor);
+                        int tr2 = (int)Math.min(toRead, brLen-partCursor);
+                        int n = raf.read(bytes, pos, tr2);
+
+                        partCursor += n;
+                        pos += n;
+                        rval += n;
+                        toRead -= n;
+
+                        if (partCursor>=brLen) {
+                            partIndex++;
+                            partCursor=0;
+                        }
+                    }
+                }
+            } finally {
+                if (raf!=null)
+                    raf.close();
+            }
+
+            return rval;
+        }
+
+        @Override
+        public int read()
+            throws IOException
+        {
+            byte[] tmp = new byte[1];
+            int n = read(tmp);
+            if (n!=1)
+                return -1;
+            else
+                return tmp[0];
+        }
+    }
 }

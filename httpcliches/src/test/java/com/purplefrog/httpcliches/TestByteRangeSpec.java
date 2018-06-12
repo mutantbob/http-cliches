@@ -1,5 +1,7 @@
 package com.purplefrog.httpcliches;
 
+import java.io.*;
+
 import junit.framework.*;
 
 /**
@@ -49,4 +51,12 @@ public class TestByteRangeSpec
         assertNull(brs1.end);
     }
 
+    public void test5()
+    {
+        ByteRangeSpec [] ranges = ByteRangeSpec.parseMultiRange("bytes=1000-2000, 3000-3100", M);
+        assertEquals(1000, ranges[0].start);
+        assertEquals(2000L, ranges[0].end.longValue());
+        assertEquals(3000, ranges[1].start);
+        assertEquals(3100L, ranges[1].end.longValue());
+    }
 }
