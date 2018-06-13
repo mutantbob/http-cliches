@@ -133,6 +133,8 @@ public class PartialFileEntity
                          +"Content-Type: "+underlyingMIME+"\r\n"
                          +"Content-Range: "+brss[i].asContentRangeHeader(fileLength)+"\r\n" +
                          "\r\n";
+            if (i>0)
+                tmp = "\r\n"+tmp;
             rval[i] = tmp.getBytes();
         }
         rval[brss.length] = ("--"+boundary+"--\r\n").getBytes();
