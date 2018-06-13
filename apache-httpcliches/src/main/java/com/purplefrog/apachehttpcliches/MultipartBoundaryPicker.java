@@ -24,18 +24,22 @@ public class MultipartBoundaryPicker
             tmp.append(symbols[r.nextInt(symbols.length)]);
         }
 
-        while(true) {
-            RandomAccessFile raf = new RandomAccessFile(f, "r");
-            byte[] boundary = tmp.toString().getBytes();
+        RandomAccessFile raf = new RandomAccessFile(f, "r");
+        try {
+            while(true) {
+                byte[] boundary = tmp.toString().getBytes();
 
-            int[] markov = new int[256];
-            for (int i = 0; i<brss.length; i++) {
-                updateMarkovForBoundary(boundary, markov, raf, brss[i]);
+                int[] markov = new int[256];
+                for (int i = 0; i<brss.length; i++) {
+                    updateMarkovForBoundary(boundary, markov, raf, brss[i]);
+                }
+                if (!anyHits(markov))
+                    break;
+
+                tmp.append(pickLeastUsedSymbol(symbols, markov));
             }
-            if (!anyHits(markov))
-                break;
-
-            tmp.append(pickLeastUsedSymbol(symbols, markov));
+        } finally {
+            raf.close();
         }
 
         return tmp.toString();
