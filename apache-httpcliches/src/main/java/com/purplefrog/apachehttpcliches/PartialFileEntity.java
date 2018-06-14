@@ -177,7 +177,7 @@ public class PartialFileEntity
                     logger.warn("transfer callback malfunctioned", e);
                 }
 
-            byte[] buffer = new byte[64<<10];
+            byte[] buffer = new byte[getBufferSize()];
             long now = System.currentTimeMillis();
             while (remaining >0) {
                 int n = istr.read(buffer, 0, (int)Math.min(buffer.length, remaining));
@@ -222,6 +222,11 @@ public class PartialFileEntity
 
             istr.close();
         }
+    }
+
+    public int getBufferSize()
+    {
+        return 64<<10;
     }
 
     long lastLogged = 0;

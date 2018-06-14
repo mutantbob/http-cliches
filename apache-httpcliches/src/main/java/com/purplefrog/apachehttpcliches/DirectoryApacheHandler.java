@@ -95,11 +95,12 @@ public class DirectoryApacheHandler
         if (target.exists()) {
 
             ContentType mime = ApacheHTTPCliches.mimeTypeFor(target);
+            EntityFactory factory = (f, brss, contentType)->DirectoryApacheHandler.this.entityFor(f, brss, contentType, callback);
             if (range==null) {
-                HttpEntity entity = new PartialFileEntity(target, new ByteRangeSpec(0, target.length()-1), mime, callback);
+                HttpEntity entity = factory.entityFor(target, new ByteRangeSpec[]{ new ByteRangeSpec(0, target.length()-1)}, mime.getMimeType());
                 return new EntityAndHeaders(200, entity, ACCEPT_RANGES_BYTES);
             } else
-                return handleSubset2(target, mime, range, callback);
+                return handleSubset2(target, mime, range, factory);
 
 
         } else {
@@ -107,7 +108,7 @@ public class DirectoryApacheHandler
         }
     }
 
-    public static EntityAndHeaders handleSubset2(File f, ContentType mime, String rangeHeader, TransferCallback callback)
+    public static EntityAndHeaders handleSubset2(File f, ContentType mime, String rangeHeader, EntityFactory factory)
         throws IOException
     {
         long totalFileLength = f.length();
@@ -118,22 +119,29 @@ public class DirectoryApacheHandler
             return new EntityAndHeaders(200, new FileEntity(f, mime));
         }
 
-        PartialFileEntity en = new PartialFileEntity(f, brs, mime, callback);
+        PartialFileEntity en = factory.entityFor(f, brs, mime.getMimeType());
         return new EntityAndHeaders(206, en, en.extraHeaders());
     }
 
-    public static EntityAndHeaders handleSubset(File f, String contentType, String rangeHeader, TransferCallback callback)
+    public static EntityAndHeaders handleSubset(File f, String contentType, String rangeHeader, EntityFactory factory)
+        throws IOException
     {
         long totalFileLength = f.length();
 
-        ByteRangeSpec brs = ByteRangeSpec.parseRange(rangeHeader, totalFileLength);
+        ByteRangeSpec[] brs = ByteRangeSpec.parseMultiRange(rangeHeader, totalFileLength);
+        if (null==brs) {
+            logger.warn("null ByteRangeSpec after parsing "+rangeHeader);
+            return new EntityAndHeaders(200, new FileEntity(f, contentType));
+        }
 
-        if (brs.end == null)
-            brs.end = totalFileLength-1;
+        PartialFileEntity en = factory.entityFor(f, brs, contentType);
+        return new EntityAndHeaders(206, en, en.extraHeaders());
+    }
 
-        PartialFileEntity en = new PartialFileEntity(f, brs, contentType, callback);
-        BasicHeader contentRange = new BasicHeader("Content-Range", "bytes " + brs.start + "-" + brs.end + "/" + totalFileLength);
-        return new EntityAndHeaders(206, en, contentRange, ACCEPT_RANGES_BYTES);
+    public PartialFileEntity entityFor(File f, ByteRangeSpec[] brss, String contentType, TransferCallback callback)
+        throws IOException
+    {
+        return new PartialFileEntity(f, brss, contentType, callback);
     }
 
     public String indexThingyFor(File target)
@@ -141,4 +149,9 @@ public class DirectoryApacheHandler
         return "index.html";
     }
 
+    public interface EntityFactory
+    {
+        PartialFileEntity entityFor(File f, ByteRangeSpec[] brss, String contentType)
+            throws IOException;
+    }
 }
