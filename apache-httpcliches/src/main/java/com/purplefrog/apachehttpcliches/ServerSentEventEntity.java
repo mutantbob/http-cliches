@@ -61,12 +61,6 @@ public class ServerSentEventEntity
             byte[] msg = wrapped.toString().getBytes();
             outstream.write(msg);
             outstream.flush();
-
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
     }
 
