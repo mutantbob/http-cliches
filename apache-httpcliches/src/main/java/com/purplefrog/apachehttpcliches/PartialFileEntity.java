@@ -184,7 +184,12 @@ public class PartialFileEntity
                 long n1 = System.currentTimeMillis();
                 readMillisAccum += n1-now; now = n1;
                 if (n<0) {
-                    throw new EOFException("unexpected EOF on file");
+                    if (istr instanceof MultipartStream) {
+                        logger.error("short read on multipart \n"+ ((MultipartStream)istr).debugLog);
+                    } else {
+                        logger.error("short read on single subrange "+brss[0]+" = "+brss[0].asContentRangeHeader(f.length())+" -vs- "+getContentLength());
+                    }
+                    throw new EOFException("unexpected EOF on file: expected "+remaining+" more of "+getContentLength());
                 }
                 outputStream.write(buffer, 0, n);
 
@@ -284,6 +289,7 @@ public class PartialFileEntity
     {
         int partIndex=0;
         long partCursor=0;
+        StringBuilder debugLog=new StringBuilder();
 
         @Override
         public int read(byte[] bytes, int pos, int toRead)
@@ -307,6 +313,7 @@ public class PartialFileEntity
                         rval += tr2;
 
                         if (partCursor >= shi.length) {
+                            debugLog.append("delivered header["+(partIndex/2)+"].length = "+partCursor+" = "+shi.length);
                             partIndex++;
                             partCursor=0;
                         }
@@ -320,12 +327,16 @@ public class PartialFileEntity
                         int tr2 = (int)Math.min(toRead, brLen-partCursor);
                         int n = raf.read(bytes, pos, tr2);
 
+                        if (n<1)
+                            throw new EOFException("malfunction while reading at "+bRange.start+"+"+partCursor+" for range "+bRange.asContentRangeHeader(raf.length()));
+
                         partCursor += n;
                         pos += n;
                         rval += n;
                         toRead -= n;
 
                         if (partCursor>=brLen) {
+                            debugLog.append("delivered brss["+(partIndex/2)+"].length = "+partCursor+" = "+brLen);
                             partIndex++;
                             partCursor=0;
                         }
