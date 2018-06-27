@@ -150,7 +150,7 @@ public class PartialFileEntity
             InputStream rval = new FileInputStream(f);
             long remaining = brss[0].start;
             while (remaining>0) {
-                long n = rval.skip(brss[0].start);
+                long n = rval.skip(remaining);
                 remaining -= n;
             }
             return rval;
