@@ -190,7 +190,7 @@ public class Util2
             return Math.min(range[1], entityLength-1);
     }
 
-    public static SSLServerSocketFactory makeSSLSocketFactory(InputStream keystoreStream, String keystorePassword, String keyPassword)
+    public static SSLContext makeSSLContext(InputStream keystoreStream, String keystorePassword, String keyPassword)
         throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException, KeyManagementException
     {
         KeyStore keyStore = KeyStore.getInstance("JKS");
@@ -204,6 +204,14 @@ public class Util2
 //                "TLSv1"
         );
         sc. init(kmf.getKeyManagers(), null, new SecureRandom());
+
+        return sc;
+    }
+
+    public static SSLServerSocketFactory makeSSLSocketFactory(InputStream keystoreStream, String keystorePassword, String keyPassword)
+        throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException, KeyManagementException
+    {
+        SSLContext sc = makeSSLContext(keystoreStream, keystorePassword, keyPassword);
 
         return sc.getServerSocketFactory();
     }
