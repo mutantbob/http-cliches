@@ -115,4 +115,37 @@ public class ByteRangeSpec
         long end_ = end==null ? (underlyingLength-1):end;
         return "bytes "+(start+"-"+end_+"/"+underlyingLength);
     }
+
+    @Override
+    public String toString()
+    {
+        return start+"-"+(end==null ? "":end);
+    }
+
+    public static boolean satisfiable(ByteRangeSpec[] brss, long totalFileLength, StringBuilder errLog)
+    {
+        boolean good=true;
+        for (ByteRangeSpec brs : brss) {
+            if (!brs.satisfiable(totalFileLength, errLog))
+                good=false;
+        }
+        return good;
+    }
+
+    public boolean satisfiable(long totalFileLength, StringBuilder errLog)
+    {
+        if (start >=totalFileLength) {
+            errLog.append("bad start "+start+" >= "+totalFileLength);
+            return false;
+        }
+
+        if (end==null)
+            return true;
+        if (end >= totalFileLength) {
+            errLog.append("bad end "+end+" >= "+totalFileLength);
+            return false;
+        }
+
+        return true;
+    }
 }

@@ -116,7 +116,16 @@ public class DirectoryApacheHandler
         ByteRangeSpec[] brs = ByteRangeSpec.parseMultiRange(rangeHeader, totalFileLength);
         if (null==brs) {
             logger.warn("null ByteRangeSpec after parsing "+rangeHeader);
-            return new EntityAndHeaders(200, new FileEntity(f, mime));
+            EntityAndHeaders rval = EntityAndHeaders.plainTextPayload(416, "Range Not Satisfiable\ncould not parse   "+rangeHeader+"\n");
+            rval.addHeader("Content-Range", "bytes */"+f.length());
+            return rval;
+        }
+
+        StringBuilder errLog = new StringBuilder();
+        if (!ByteRangeSpec.satisfiable(brs, totalFileLength, errLog)) {
+            EntityAndHeaders rval = EntityAndHeaders.plainTextPayload(416, "Range Not Satisfiable\n"+errLog+"\n");
+            rval.addHeader("Content-Range", "bytes */"+f.length());
+            return rval;
         }
 
         PartialFileEntity en = factory.entityFor(f, brs, mime.getMimeType());
