@@ -68,7 +68,7 @@ public class MultipartBoundaryPicker
         int bytesInBuffer;
 
         long fileCursor = brs.start;
-        long end = brs.end==null ? raf.length() :  brs.end;
+        long end = brs.end==null ? raf.length()-1 :  brs.end;
         raf.seek(fileCursor);
         {
             int toRead = (int)Math.min(buffer.length , end-fileCursor+1);
