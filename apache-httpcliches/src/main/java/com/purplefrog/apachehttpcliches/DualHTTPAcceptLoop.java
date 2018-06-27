@@ -6,6 +6,7 @@ import org.apache.http.protocol.*;
 import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
+import java.util.function.*;
 
 public class DualHTTPAcceptLoop
     extends BasicHTTPSuite
@@ -73,5 +74,10 @@ public class DualHTTPAcceptLoop
     public String getAddresses()
     {
         return ss1.getLocalSocketAddress() +" & "+ss2.getLocalSocketAddress();
+    }
+
+    public String getAddresses(Function<SocketAddress, String> stringifier)
+    {
+        return stringifier.apply(ss1.getLocalSocketAddress()) +" & "+stringifier.apply(ss2.getLocalSocketAddress());
     }
 }
