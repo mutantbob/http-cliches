@@ -11,6 +11,7 @@
       <module>apache-httpcliches</module>
       <module>sun-httpcliches</module>
       <module>httpcliches</module>
+      <module>apache-http5cliches</module>
     </modules>
 
 
