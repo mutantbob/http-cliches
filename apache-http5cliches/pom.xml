@@ -16,6 +16,7 @@
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
+                <version>3.8.0</version>
             </plugin>
         </plugins>
     </build>
@@ -36,11 +37,6 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.14</version>
-        </dependency>
-        <dependency>
-            <groupId>com.purplefrog</groupId>
-            <artifactId>httpcliches</artifactId>
-            <version>0.9-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>
